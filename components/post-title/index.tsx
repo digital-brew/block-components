@@ -4,13 +4,13 @@ import { useSelect } from '@wordpress/data';
 import { usePost } from '../../hooks';
 
 interface PostTitleProps<TElementType extends React.ElementType> {
-	tagName?: TElementType;
+	tagName?: TElementType | keyof JSX.IntrinsicElements;
 }
 
 type PostTitlePropsWithOmit<TElementType extends React.ElementType> = PostTitleProps<TElementType> & Omit<React.ComponentPropsWithoutRef<TElementType>, keyof PostTitleProps<TElementType>>;
 
 export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
-	tagName,
+	tagName = 'h1',
 	...rest
 }: PostTitlePropsWithOmit<TElementType> ) => {
 	const { postId, postType, isEditable } = usePost();
@@ -27,7 +27,7 @@ export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 		[],
 	);
 
-	const TagName = tagName ?? 'h1';
+	const TagName = tagName;
 
 	if (!isEditable) {
 		// eslint-disable-next-line react/no-danger

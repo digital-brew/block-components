@@ -1,6 +1,6 @@
 # MediaToolbar
 
-The MediaToolbar component is build to quickly add a complete media editing experience to the `BlockControls` toolbar. It shows an "Add Image" or "Replace Image" + "Remove Image" buttons that handle the full flow. Wether or not an image can be removed can be configured using the `isOptional` prop.
+The MediaToolbar component is build to quickly add a complete media editing experience to the `BlockControls` toolbar. It shows an "Add Image" or "Replace Image" + "Remove Image" buttons that handle the full flow. Whether or not an image can be removed can be configured using the `isOptional` prop.
 
 ## Usage
 

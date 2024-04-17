@@ -42,6 +42,7 @@ const ButtonStyled = styled(Button)`
 	.block-editor-link-control__search-item-header {
 		display: flex;
 		flex-direction: column;
+		align-items: flex-start;
 	}
 
 	mark {

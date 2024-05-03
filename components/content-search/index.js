@@ -40,6 +40,14 @@ const LoadingContainer = styled.div`
 	}
 `;
 
+const StyledNavigableMenu = styled(NavigableMenu)`
+	width: 100%;
+`;
+
+const StyledSearchControl = styled(SearchControl)`
+	width: 100%;
+`;
+
 const ContentSearch = ({
 	onSelectItem,
 	placeholder,
@@ -353,8 +361,8 @@ const ContentSearch = ({
 
 	return (
 		<StyledComponentContext cacheKey="tenup-component-content-search">
-			<NavigableMenu onNavigate={handleOnNavigate} orientation="vertical">
-				<SearchControl
+			<StyledNavigableMenu onNavigate={handleOnNavigate} orientation="vertical">
+				<StyledSearchControl
 					__next40pxDefaultSize
 					value={searchString}
 					onChange={(newSearchString) => {
@@ -444,7 +452,7 @@ const ContentSearch = ({
 						{isLoading && currentPage > 1 && <StyledSpinner />}
 					</>
 				) : null}
-			</NavigableMenu>
+			</StyledNavigableMenu>
 		</StyledComponentContext>
 	);
 };

@@ -140,6 +140,18 @@ add_action(
 	}
 );
 
+add_action( 'wp_loaded', __NAMESPACE__ . '\remove_core_patterns' );
+
+/**
+ * Remove core patterns
+ */
+function remove_core_patterns() {
+	$patterns = \WP_Block_Patterns_Registry::get_instance()->get_all_registered();
+	foreach ( $patterns as $pattern ) {
+		unregister_block_pattern( $pattern['name'] );
+	}
+}
+
 
 /**
  * Remove page level patterns

@@ -63,6 +63,8 @@ context('Repeater', () => {
 			});
 		}
 
+		cy.wait( 100 );
+
 		addItem( 'Home', true );
 		addItem( 'About Us', false );
 		addItem( 'Careers', true );

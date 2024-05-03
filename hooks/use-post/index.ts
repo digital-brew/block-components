@@ -20,8 +20,8 @@ export function usePost() {
 	const hasBlockContext = !!blockContextPostId && !!blockContextPostType;
 
 	return {
-		postId: (blockContextPostId || globalPostId) as number | null,
+		postId: (blockContextPostId || globalPostId) as number | null | undefined | string,
 		postType: (blockContextPostType || globalPostType) as string,
-		isEditable: (hasBlockContext ? blockContextIsEditable : true) as boolean | null,
+		isEditable: (hasBlockContext ? blockContextIsEditable : true) as boolean | null | undefined,
 	};
 }

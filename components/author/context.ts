@@ -1,6 +1,6 @@
 import { createContext, useContext } from '@wordpress/element';
 
-type Author = {
+export type Author = {
 	avatar_urls: Record<string, string>;
 	description: string;
 	email: string;

@@ -2,13 +2,25 @@ import { Children } from '@wordpress/element';
 import { store as coreStore } from '@wordpress/core-data';
 import { Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import PropTypes from 'prop-types';
 import { usePost } from '../../hooks';
 import { Name, FirstName, LastName, Avatar, Bio, Email } from '../author';
 
 import { AuthorContext } from '../author/context';
+import type { Author } from '../author/context';
 
-export const PostAuthor = (props) => {
+interface PostAuthorProps {
+	children?: React.ReactNode | ((author: Author) => React.ReactNode);
+	[key: string]: any;
+}
+
+export const PostAuthor: React.FC<PostAuthorProps> & {
+	Name: typeof Name;
+	FirstName: typeof FirstName;
+	LastName: typeof LastName;
+	Avatar: typeof Avatar;
+	Bio: typeof Bio;
+	Email: typeof Email;
+} = (props) => {
 	const { children, ...rest } = props;
 	const { postId, postType } = usePost();
 
@@ -16,7 +28,7 @@ export const PostAuthor = (props) => {
 		(select) => {
 			const { getEditedEntityRecord, getUser, hasFinishedResolution } = select(coreStore);
 
-			const postQuery = ['postType', postType, postId];
+			const postQuery = ['postType', postType, postId as number] as const;
 
 			const post = getEditedEntityRecord(...postQuery);
 			const hasResolvedPost = hasFinishedResolution('getEditedEntityRecord', postQuery);
@@ -52,18 +64,6 @@ export const PostAuthor = (props) => {
 	}
 
 	return <Name {...rest} />;
-};
-
-PostAuthor.propTypes = {
-	children: PropTypes.oneOfType([
-		PropTypes.func,
-		PropTypes.node,
-		PropTypes.arrayOf(PropTypes.node),
-	]),
-};
-
-PostAuthor.defaultProps = {
-	children: null,
 };
 
 PostAuthor.Name = Name;

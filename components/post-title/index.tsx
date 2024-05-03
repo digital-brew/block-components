@@ -10,7 +10,7 @@ interface PostTitleProps<TElementType extends React.ElementType> {
 type PostTitlePropsWithOmit<TElementType extends React.ElementType> = PostTitleProps<TElementType> & Omit<React.ComponentPropsWithoutRef<TElementType>, keyof PostTitleProps<TElementType>>;
 
 export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
-	tagName = 'h1',
+	tagName: TagName = 'h1',
 	...rest
 }: PostTitlePropsWithOmit<TElementType> ) => {
 	const { postId, postType, isEditable } = usePost();
@@ -27,8 +27,6 @@ export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 		[],
 	);
 
-	const TagName = tagName;
-
 	if (!isEditable) {
 		// eslint-disable-next-line react/no-danger
 		return <TagName {...rest} dangerouslySetInnerHTML={{ __html: fullTitle?.rendered }} />;
@@ -44,8 +42,4 @@ export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 			{...rest}
 		/>
 	);
-};
-
-PostTitle.defaultProps = {
-	tagName: 'h1',
 };

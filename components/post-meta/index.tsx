@@ -14,6 +14,11 @@ interface PostMetaProps {
 	 * The children render prop.
 	 */
 	children?: ((metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode);
+
+	/**
+	 * Additional props to pass to the component.
+	 */
+	[key: string]: any;
 }
 
 export const PostMeta: React.FC<PostMetaProps> & {

@@ -82,7 +82,7 @@ const MetaNumber: React.FC<MetaNumberProps> = (props) => {
 	const { metaKey } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
 
-	return <NumberControl value={metaValue} onChange={setMetaValue} {...props} />;
+	return <NumberControl value={metaValue} onChange={value => setMetaValue(parseInt(value ?? ''))} {...props} />;
 };
 
 interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {

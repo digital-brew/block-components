@@ -14,12 +14,12 @@
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "@wordpress/env": "^5.8.0",
-        "@wordpress/eslint-plugin": "^13.7.0",
-        "@wordpress/scripts": "^25.5.1"
+        "@wordpress/env": "^9.9.0",
+        "@wordpress/eslint-plugin": "^18.0.0",
+        "@wordpress/scripts": "^27.8.0"
     },
     "dependencies": {
         "@10up/block-components": "file:../dist/index.js",
-        "@wordpress/icons": "^9.14.0"
+        "@wordpress/icons": "^9.48.0"
     }
 }

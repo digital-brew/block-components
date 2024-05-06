@@ -12,7 +12,7 @@ export const useSelectedTermsOfSavedPost = (taxonomyName: string, postId: number
 				taxonomyName,
 				{
 					per_page: -1,
-					post: postId,
+					post: postId as number,
 				},
 			] as const;
 

@@ -6,7 +6,7 @@
   "version": "1.18.0",
   "description": "10up Components built for the WordPress Block Editor.",
   "main": "./dist/index.js",
-  "source": "index.js",
+  "source": "index.ts",
   "types": "./dist/index.d.ts",
   "scripts": {
     "lint": "10up-toolkit lint-js",

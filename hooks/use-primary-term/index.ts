@@ -3,8 +3,10 @@ import { __ } from '@wordpress/i18n';
 import { usePost } from '../use-post';
 import { useIsPluginActive } from '../use-is-plugin-active';
 import { useIsSupportedTaxonomy } from '../use-is-supported-taxonomy';
+import { store as coreStore } from '@wordpress/core-data';
+import type { WP_REST_API_Taxonomy } from 'wp-types';
 
-export const usePrimaryTerm = (taxonomyName) => {
+export const usePrimaryTerm = (taxonomyName: string) => {
 	const { postType, isEditable } = usePost();
 
 	const [isYoastSeoActive, hasResolvedIsPluginActive] = useIsPluginActive('wordpress-seo/wp-seo');
@@ -60,11 +62,11 @@ export const usePrimaryTerm = (taxonomyName) => {
 				return null;
 			}
 
-			const { getEntityRecord } = select('core');
-			return getEntityRecord('taxonomy', taxonomyName, primaryTermId);
+			const { getEntityRecord } = select(coreStore);
+			return getEntityRecord<WP_REST_API_Taxonomy>('taxonomy', taxonomyName, primaryTermId);
 		},
 		[primaryTermId],
 	);
 
-	return [!isEditable ? { name: __('Primary Term', 'tenup') } : primaryTerm, isSupportedTaxonomy];
+	return [!isEditable ? { name: __('Primary Term', 'tenup') } : primaryTerm, isSupportedTaxonomy] as const;
 };

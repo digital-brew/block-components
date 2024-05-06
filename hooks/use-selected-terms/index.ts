@@ -4,7 +4,7 @@ import { useAllTerms } from '../use-all-terms';
 import { useSelectedTermIds } from '../use-selected-term-ids';
 import { useSelectedTermsOfSavedPost } from '../use-selected-terms-of-saved-post';
 
-export const useSelectedTerms = (taxonomyName) => {
+export const useSelectedTerms = (taxonomyName: string) => {
 	const { postId, postType, isEditable } = usePost();
 	const [isSupportedTaxonomy, hasResolvedIsSupportedTaxonomy] = useIsSupportedTaxonomy(
 		postType,
@@ -13,10 +13,10 @@ export const useSelectedTerms = (taxonomyName) => {
 	const [selectedTermIds, hasResolvedSelectedTermIds] = useSelectedTermIds(taxonomyName);
 	const [terms, hasResolvedTerms] = useAllTerms(taxonomyName);
 	const [selectedTermsOfSavedPost, hasResolvedSelectedTermsOfSavedPost] =
-		useSelectedTermsOfSavedPost(taxonomyName, postId);
+		useSelectedTermsOfSavedPost(taxonomyName, postId as number);
 
 	if (!hasResolvedIsSupportedTaxonomy) {
-		return [[], false];
+		return [[] as const, false] as const;
 	}
 
 	if (!isSupportedTaxonomy && hasResolvedIsSupportedTaxonomy) {
@@ -24,7 +24,7 @@ export const useSelectedTerms = (taxonomyName) => {
 		console.error(
 			`The taxonomy "${taxonomyName}" is not supported for the post type "${postType}". Please use a supported taxonomy.`,
 		);
-		return [[], true];
+		return [[], true] as const;
 	}
 
 	if (
@@ -39,7 +39,7 @@ export const useSelectedTerms = (taxonomyName) => {
 	}
 
 	return [
-		terms.filter((term) => selectedTermIds?.includes(term.id)),
+		terms?.filter((term) => selectedTermIds?.includes(term.id)),
 		hasResolvedTerms && hasResolvedSelectedTermIds,
-	];
+	] as const;
 };

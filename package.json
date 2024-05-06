@@ -6,7 +6,7 @@
   "version": "1.18.0",
   "description": "10up Components built for the WordPress Block Editor.",
   "main": "./dist/index.js",
-  "source": "index.js",
+  "source": "index.ts",
   "types": "./dist/index.d.ts",
   "scripts": {
     "lint": "10up-toolkit lint-js",
@@ -58,7 +58,8 @@
     "array-move": "^4.0.0",
     "prop-types": "^15.8.1",
     "react-window": "^1.8.10",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "wp-types": "^3.65.0"
   },
   "devDependencies": {
     "@10up/cypress-wp-utils": "github:10up/cypress-wp-utils#build",

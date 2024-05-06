@@ -1,7 +1,8 @@
 import { useSelect } from '@wordpress/data';
 import { store as coreStore } from '@wordpress/core-data';
+import type { WP_REST_API_Term } from 'wp-types';
 
-export const useAllTerms = (taxonomyName) => {
+export const useAllTerms = (taxonomyName: string) => {
 	return useSelect(
 		(select) => {
 			const { getEntityRecords, hasFinishedResolution } = select(coreStore);
@@ -13,13 +14,13 @@ export const useAllTerms = (taxonomyName) => {
 					per_page: -1,
 					context: 'view',
 				},
-			];
+			] as const;
 
-			const terms = getEntityRecords(...termsSelector);
+			const terms = getEntityRecords<WP_REST_API_Term>(...termsSelector);
 
-			const hasResolvedTerms = hasFinishedResolution('getEntityRecords', termsSelector);
+			const hasResolvedTerms: boolean = hasFinishedResolution('getEntityRecords', termsSelector);
 
-			return [terms, hasResolvedTerms];
+			return [terms, hasResolvedTerms] as const;
 		},
 		[taxonomyName],
 	);

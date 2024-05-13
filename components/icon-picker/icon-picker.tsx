@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { __ } from '@wordpress/i18n';
 import {
@@ -29,9 +28,9 @@ const StyledIconGrid = styled(Grid)`
 `;
 
 const StyledIconButton = styled(Icon)`
-	background-color: ${({ selected }) => (selected ? 'black' : 'white')};
-	color: ${({ selected }) => (selected ? 'white' : 'black')};
-	fill: ${({ selected }) => (selected ? 'white' : 'black')};
+	background-color: ${({ selected } : { selected: boolean }) => (selected ? 'black' : 'white')};
+	color: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
+	fill: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
 	padding: 5px;
 	border: none;
 	border-radius: 4px;
@@ -54,19 +53,23 @@ const StyledIconButton = styled(Icon)`
 	}
 `;
 
-/**
- * IconPicker
- *
- * @typedef IconPickerProps
- * @property {object} value value of the selected icon
- * @property {Function} onChange change handler for when a new icon is selected
- * @property {string} label label of the icon picker
- *
- * @param {IconPickerProps} props IconPicker Props
- * @returns {*} React Element
- */
-export const IconPicker = (props) => {
-	const { value, onChange, label, ...rest } = props;
+export interface IconPickerProps {
+	/**
+	 * Value of the selected icon
+	 */
+	value: { name: string; iconSet: string };
+	/**
+	 * Change handler for when a new icon is selected
+	 */
+	onChange: (icon: { name: string; iconSet: string }) => void;
+	/**
+	 * Label of the icon picker
+	 */
+	label?: string;
+}
+
+export const IconPicker: React.FC<IconPickerProps> = (props) => {
+	const { value, onChange, label = '', ...rest } = props;
 
 	const icons = useIcons();
 
@@ -90,16 +93,6 @@ export const IconPicker = (props) => {
 	);
 };
 
-IconPicker.defaultProps = {
-	label: '',
-};
-
-IconPicker.propTypes = {
-	value: PropTypes.object.isRequired,
-	onChange: PropTypes.func.isRequired,
-	label: PropTypes.string,
-};
-
 /**
  * TooltipContent
  *
@@ -109,7 +102,7 @@ IconPicker.propTypes = {
  * workaround for that. It will just wrap the children in a div and pass that to the
  * Tooltip component.
  */
-const TooltipContent = forwardRef(function TooltipContent(props, ref) {
+const TooltipContent = forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(function TooltipContent(props, ref) {
 	const { children } = props;
 
 	return (
@@ -119,17 +112,18 @@ const TooltipContent = forwardRef(function TooltipContent(props, ref) {
 	);
 });
 
-/**
- * IconLabel
- *
- * @typedef IconLabelProps
- * @property {object} icon icon object
- * @property {boolean} isChecked whether the icon is checked
- *
- * @param {IconLabelProps} props IconLabel Props
- * @returns {*} React Element
- */
-const IconLabel = (props) => {
+interface IconLabelProps {
+	/**
+	 * Icon object
+	 */
+	icon: { name: string; iconSet: string; label: string };
+	/**
+	 * Whether the icon is checked
+	 */
+	isChecked: boolean;
+}
+
+const IconLabel: React.FC<IconLabelProps> = (props) => {
 	const { icon, isChecked } = props;
 	return (
 		<Tooltip text={icon.label}>
@@ -145,14 +139,32 @@ const IconLabel = (props) => {
 	);
 };
 
-IconLabel.propTypes = {
-	icon: PropTypes.object.isRequired,
-	isChecked: PropTypes.bool.isRequired,
-};
+interface IconGridItemProps {
+	/**
+	 * Column index
+	 */
+	columnIndex: number;
+	/**
+	 * Row index
+	 */
+	rowIndex: number;
+	/**
+	 * Style object
+	 */
+	style: React.CSSProperties;
+	/**
+	 * Data object
+	 */
+	data: unknown;
+}
 
-const IconGridItem = memo((props) => {
+const IconGridItem = memo<IconGridItemProps>((props) => {
 	const { columnIndex, rowIndex, style, data } = props;
-	const { icons, selectedIcon, onChange } = data;
+	const { icons, selectedIcon, onChange } = data as {
+		icons: { name: string; iconSet: string; label: string }[];
+		selectedIcon: { name: string; iconSet: string };
+		onChange: (icon: { name: string; iconSet: string }) => void;
+	};
 	const index = rowIndex * 5 + columnIndex;
 	const icon = icons[index];
 	const isChecked = selectedIcon?.name === icon?.name && selectedIcon?.iconSet === icon?.iconSet;
@@ -161,11 +173,14 @@ const IconGridItem = memo((props) => {
 		return null;
 	}
 
+	// We need to cast the IconLabel to a string because types in WP are not correct
+	const label = <IconLabel isChecked={isChecked} icon={icon} /> as unknown as string;
+
 	return (
 		<div style={style}>
 			<CheckboxControl
 				key={icon.name}
-				label={<IconLabel isChecked={isChecked} icon={icon} />}
+				label={label}
 				checked={isChecked}
 				onChange={() => onChange(icon)}
 				className="component-icon-picker__checkbox-control"
@@ -174,7 +189,22 @@ const IconGridItem = memo((props) => {
 	);
 }, areEqual);
 
-const IconGrid = (props) => {
+interface IconGridProps {
+	/**
+	 * List of icons
+	 */
+	icons: { name: string; iconSet: string; label: string }[];
+	/**
+	 * Selected icon
+	 */
+	selectedIcon: { name: string; iconSet: string };
+	/**
+	 * Change handler for when a new icon is selected
+	 */
+	onChange: (icon: { name: string; iconSet: string }) => void;
+}
+
+const IconGrid: React.FC<IconGridProps> = (props) => {
 	const { icons, selectedIcon, onChange } = props;
 
 	const itemData = useMemo(
@@ -197,10 +227,4 @@ const IconGrid = (props) => {
 			</StyledIconGrid>
 		</NavigableMenu>
 	);
-};
-
-IconGrid.propTypes = {
-	icons: PropTypes.array.isRequired,
-	selectedIcon: PropTypes.object.isRequired,
-	onChange: PropTypes.func.isRequired,
 };

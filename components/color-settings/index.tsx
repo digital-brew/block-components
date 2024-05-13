@@ -50,11 +50,6 @@ interface ColorSettingProps {
 	 * Callback called when a color is selected.
 	 */
 	onChange: Function,
-
-	/**
-	 * Rest of the properties.
-	 */
-	[key: string]: any;
 }
 
 interface Color {
@@ -80,7 +75,6 @@ export const ColorSetting: React.FC<ColorSettingProps> = ({
 	onChange,
 	disableCustomColors = false,
 	clearable = true,
-	...rest
 }) => {
 	const instanceId = useInstanceId(ColorSetting);
 	const id = `color-settings-${instanceId}`;
@@ -92,7 +86,6 @@ export const ColorSetting: React.FC<ColorSettingProps> = ({
 			help={help}
 			className={className}
 			hideLabelFromVision={hideLabelFromVision}
-			{...rest}
 		>
 			<ColorPalette
 				colors={colors}

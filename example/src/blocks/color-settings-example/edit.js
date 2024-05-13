@@ -12,8 +12,8 @@ export const BlockEdit = (props) => {
 
 	const colors = [
 		{ name: 'red', color: '#f00' },
-        { name: 'white', color: '#fff' },
-        { name: 'blue', color: '#00f' },
+		{ name: 'white', color: '#fff' },
+		{ name: 'blue', color: '#00f' },
 	];
 	return (
 		<>

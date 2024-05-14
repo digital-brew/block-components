@@ -2,11 +2,24 @@ import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { useRefEffect, useInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
-import propTypes from 'prop-types';
 
-export const StyledComponentContext = (props) => {
-	const { children, cacheKey } = props;
-	const fallbackKey = useInstanceId(StyledComponentContext);
+interface StyledComponentContextProps {
+	/**
+	 * Children.
+	 */
+	children: React.ReactNode;
+
+	/**
+	 * Cache key.
+	 */
+	cacheKey: string;
+}
+
+export const StyledComponentContext: React.FC<StyledComponentContextProps> = ({
+	children,
+	cacheKey,
+}) => {
+	const fallbackKey = `${useInstanceId(StyledComponentContext)}`;
 
 	const defaultCache = createCache({
 		key: cacheKey || fallbackKey,
@@ -36,9 +49,4 @@ export const StyledComponentContext = (props) => {
 			<CacheProvider value={cache}>{children}</CacheProvider>
 		</>
 	);
-};
-
-StyledComponentContext.propTypes = {
-	children: propTypes.node.isRequired,
-	cacheKey: propTypes.string.isRequired,
 };

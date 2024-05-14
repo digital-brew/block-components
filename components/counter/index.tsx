@@ -1,8 +1,8 @@
 import { forwardRef } from '@wordpress/element';
-import PropTypes from 'prop-types';
 import cx from 'classnames';
 import styled from '@emotion/styled';
 import { StyledComponentContext } from '../styled-components-context';
+import { ForwardRefExoticComponent, PropsWithoutRef, RefAttributes, FC } from 'react';
 
 const StyledSvg = styled('svg')`
 	transform: rotate(-90deg);
@@ -56,8 +56,16 @@ const StyledCounter = styled('div')`
 	font-variant-numeric: tabular-nums;
 `;
 
-const CircularProgressBar = (props) => {
-	const { percentage } = props;
+interface CircularProgressBarProps {
+	/**
+	 * Percentage elapsed.
+	 */
+	percentage: number;
+}
+
+const CircularProgressBar: FC<CircularProgressBarProps> = ({
+	percentage
+}) => {
 	const radius = 90;
 	const circumference = 2 * Math.PI * radius;
 
@@ -139,38 +147,42 @@ const CircularProgressBar = (props) => {
 	);
 };
 
-/**
- * Counter
- *
- * @description display character count and limit.
- *
- * @returns <Counter />
- */
-const Counter = forwardRef((props, ref) => {
-	const { count, limit } = props;
-	const percentage = (count / limit) * 100;
-	return (
-		<StyledComponentContext cacheKey="tenup-component-counter">
-			<StyledCounter
-				className={cx('tenup--block-components__character-count', {
-					'is-over-limit': count > limit,
-				})}
-				{...props}
-				ref={ref}
-			>
-				<div className="tenup--block-components__character-count__label">
-					<span className="tenup--block-components__character-count__count">{count}</span>{' '}
-					/{' '}
-					<span className="tenup--block-components__character-count__limit">{limit}</span>
-				</div>
-				<CircularProgressBar percentage={percentage} />
-			</StyledCounter>
-		</StyledComponentContext>
-	);
-});
+interface CounterProps {
+	/**
+	 * Current count.
+	 */
+	count: number;
 
-CircularProgressBar.propTypes = {
-	percentage: PropTypes.number.isRequired,
-};
+	/**
+	 * Max limit.
+	 */
+	limit: number;
+}
+
+const Counter: ForwardRefExoticComponent<PropsWithoutRef<CounterProps> & RefAttributes<HTMLDivElement>> = forwardRef<HTMLDivElement, CounterProps>(
+	({
+		count,
+		limit,
+	}, ref ) => {
+		const percentage = (count / limit) * 100;
+		return (
+			<StyledComponentContext cacheKey="tenup-component-counter">
+				<StyledCounter
+					className={cx('tenup--block-components__character-count', {
+						'is-over-limit': count > limit,
+					})}
+					ref={ref}
+				>
+					<div className="tenup--block-components__character-count__label">
+						<span className="tenup--block-components__character-count__count">{count}</span>{' '}
+						/{' '}
+						<span className="tenup--block-components__character-count__limit">{limit}</span>
+					</div>
+					<CircularProgressBar percentage={percentage} />
+				</StyledCounter>
+			</StyledComponentContext>
+		);
+	}
+);
 
 export { CircularProgressBar, Counter };

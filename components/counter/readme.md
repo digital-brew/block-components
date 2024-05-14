@@ -12,15 +12,17 @@ import { Counter, CircularProgressBar } from '@10up/block-components';
 function MyComponent( props ) {
 
     return (
-		<Counter
-			count={text.length}
-			limit={20}
-		/>
+		<>
+			<Counter
+				count={text.length}
+				limit={20}
+			/>
 
-		<CircularProgressBar
-			percentage={(text.length / 20) * 100}
-		/>
-    )
+			<CircularProgressBar
+				percentage={(text.length / 20) * 100}
+			/>
+		</>
+    );
 }
 ```
 

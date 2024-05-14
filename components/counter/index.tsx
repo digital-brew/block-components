@@ -157,12 +157,18 @@ interface CounterProps {
 	 * Max limit.
 	 */
 	limit: number;
+
+	/**
+	 * Rest of the props.
+	 */
+	[key: string]: unknown;
 }
 
 const Counter: ForwardRefExoticComponent<PropsWithoutRef<CounterProps> & RefAttributes<HTMLDivElement>> = forwardRef<HTMLDivElement, CounterProps>(
 	({
 		count,
 		limit,
+		...rest
 	}, ref ) => {
 		const percentage = (count / limit) * 100;
 		return (
@@ -172,6 +178,7 @@ const Counter: ForwardRefExoticComponent<PropsWithoutRef<CounterProps> & RefAttr
 						'is-over-limit': count > limit,
 					})}
 					ref={ref}
+					{...rest}
 				>
 					<div className="tenup--block-components__character-count__label">
 						<span className="tenup--block-components__character-count__count">{count}</span>{' '}

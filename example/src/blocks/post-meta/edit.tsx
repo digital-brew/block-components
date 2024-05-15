@@ -1,3 +1,4 @@
+import React from 'react';
 import { store as blocksStore, createBlocksFromInnerBlocksTemplate } from '@wordpress/blocks';
 import {
 	useBlockProps,

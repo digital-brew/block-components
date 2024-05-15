@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { safeDecodeURI, filterURLForDisplay } from '@wordpress/url';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -51,27 +50,32 @@ const ButtonStyled = styled(Button)`
 	}
 `;
 
-/**
- * SearchItem
- *
- * @param {object} props react props
- * @param {object} props.suggestion suggestion object
- * @param {Array} props.contentTypes array of content types
- * @param {Function} props.onClick callback for when the item is clicked
- * @param {string} props.searchTerm the search term
- * @param {boolean} props.isSelected whether the item is selected
- * @param {string} props.id the id of the item
- * @param {Function} props.renderType a callback to override the type text
- * @returns {*} React JSX
- */
-const SearchItem = ({
+export interface Suggestion {
+	id: number;
+	title: string;
+	url: string;
+	type: string;
+	subtype: string;
+}
+
+interface SearchItemProps {
+	suggestion: Suggestion;
+	onClick: () => void;
+	searchTerm?: string;
+	isSelected?: boolean;
+	id?: string;
+	contentTypes: string[];
+	renderType?: (suggestion: Suggestion) => string;
+}
+
+const SearchItem: React.FC<SearchItemProps> = ({
 	suggestion,
 	onClick,
-	searchTerm,
-	isSelected,
-	id,
+	searchTerm = '',
+	isSelected = false,
+	id = '',
 	contentTypes,
-	renderType,
+	renderType = defaultRenderItemType,
 }) => {
 	const showType = suggestion.type && contentTypes.length > 1;
 
@@ -96,7 +100,7 @@ const SearchItem = ({
 					<span
 						className="block-editor-link-control__search-item-title"
 						style={{
-							paddingRight: !showType ? 0 : null,
+							paddingRight: !showType ? 0 : undefined,
 						}}
 					>
 						<TextHighlight text={titleContent} highlight={searchTerm} />
@@ -105,7 +109,7 @@ const SearchItem = ({
 						aria-hidden
 						className="block-editor-link-control__search-item-info"
 						style={{
-							paddingRight: !showType ? 0 : null,
+							paddingRight: !showType ? 0 : undefined,
 						}}
 					>
 						<Truncate numberOfLines={1} limit={55} ellipsizeMode="middle">
@@ -123,26 +127,9 @@ const SearchItem = ({
 	);
 };
 
-export function defaultRenderItemType(suggestion) {
+export function defaultRenderItemType(suggestion: Suggestion): string {
 	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localised CPT or taxonomy label.
-	return suggestion.type === 'post_tag' ? 'tag' : suggestion.type;
+	return suggestion.type === 'post_tag' ? 'tag' : suggestion.subtype;
 }
-
-SearchItem.defaultProps = {
-	id: '',
-	searchTerm: '',
-	isSelected: false,
-	renderType: defaultRenderItemType,
-};
-
-SearchItem.propTypes = {
-	id: PropTypes.string,
-	searchTerm: PropTypes.string,
-	suggestion: PropTypes.object.isRequired,
-	onClick: PropTypes.func.isRequired,
-	isSelected: PropTypes.bool,
-	contentTypes: PropTypes.array.isRequired,
-	renderType: PropTypes.func,
-};
 
 export default SearchItem;

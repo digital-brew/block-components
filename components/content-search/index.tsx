@@ -2,10 +2,9 @@ import { Spinner, NavigableMenu, Button, SearchControl } from '@wordpress/compon
 import apiFetch from '@wordpress/api-fetch';
 import { useState, useRef, useEffect, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
-import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
-import SearchItem, { defaultRenderItemType } from './SearchItem';
+import SearchItem, { Suggestion } from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
 
 const NAMESPACE = 'tenup-content-search';
@@ -48,31 +47,87 @@ const StyledSearchControl = styled(SearchControl)`
 	width: 100%;
 `;
 
-const ContentSearch = ({
-	onSelectItem,
-	placeholder,
+interface QueryCache {
+	results: SearchResult[] | null;
+	controller: null | number | AbortController;
+	currentPage: number | null;
+	totalPages: number | null;
+}
+
+interface SearchResult {
+	id: number;
+	title: string;
+	url: string;
+	type: string;
+	subtype: string;
+	link?: string;
+	name?: string;
+}
+
+interface QueryArgs {
+	perPage: number;
+	page: number;
+	contentTypes: string[];
+	mode: string;
+	keyword: string;
+}
+
+interface RenderItemComponentProps {
+	item: Suggestion;
+	onSelect: () => void;
+	searchTerm?: string;
+	isSelected?: boolean;
+	id?: string;
+	contentTypes: string[];
+	renderType?: (suggestion: Suggestion) => string;
+}
+
+interface ContentSearchProps {
+	onSelectItem: (item: Suggestion) => void;
+	placeholder?: string;
+	label?: string;
+	hideLabelFromVision?: boolean;
+	contentTypes?: string[];
+	mode?: 'post' | 'user' | 'term';
+	perPage?: number;
+	queryFilter?: (query: string, args: QueryArgs) => string;
+	excludeItems?: {
+		id: number;
+	}[];
+	renderItemType?: (props: Suggestion) => string;
+	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
+	fetchInitialResults?: boolean;
+}
+
+const ContentSearch: React.FC<ContentSearchProps> = ({
+	onSelectItem = () => {
+		console.log('Select!'); // eslint-disable-line no-console
+	},
+	placeholder = '',
 	label,
-	hideLabelFromVision,
-	contentTypes,
-	mode,
-	perPage,
-	queryFilter,
-	excludeItems,
-	renderItemType,
-	renderItem: RenderItemComponent,
+	hideLabelFromVision = true,
+	contentTypes = ['post', 'page'],
+	mode = 'post',
+	perPage = 20,
+	queryFilter = (query: string) => query,
+	excludeItems = [],
+	renderItemType = undefined,
+	renderItem: RenderItemComponent = undefined,
 	fetchInitialResults,
 }) => {
 	const [searchString, setSearchString] = useState('');
-	const [searchQueries, setSearchQueries] = useState({});
-	const [selectedItem, setSelectedItem] = useState(null);
+	const [searchQueries, setSearchQueries] = useState<{[key: string]: QueryCache}>({});
+	const [selectedItem, setSelectedItem] = useState<number|null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [isFocused, setIsFocused] = useState(false);
 
 	const mounted = useRef(true);
 
+	const searchContainer = useRef<HTMLDivElement>(null);
+
 	const filterResults = useCallback(
-		(results) => {
-			return results.filter((result) => {
+		(results: SearchResult[]) => {
+			return results.filter((result: SearchResult) => {
 				let keep = true;
 
 				if (excludeItems.length) {
@@ -91,9 +146,9 @@ const ContentSearch = ({
 	 * update the selected item in state to either the selected item or null if the
 	 * selected item does not have a valid id
 	 *
-	 * @param {*} item item
+	 * @param {number} item item
 	 */
-	const handleOnNavigate = (item) => {
+	const handleOnNavigate = (item: number) => {
 		if (item === 0) {
 			setSelectedItem(null);
 		}
@@ -107,16 +162,17 @@ const ContentSearch = ({
 	 * reset the search input & item container
 	 * trigger the onSelectItem callback passed in via props
 	 *
-	 * @param {*} item item
+	 * @param {Suggestion} item item
 	 */
-	const handleItemSelection = (item) => {
+	const handleItemSelection = (item: Suggestion) => {
 		setSearchString('');
+		setIsFocused(false);
 
 		onSelectItem(item);
 	};
 
 	const prepareSearchQuery = useCallback(
-		(keyword, page) => {
+		(keyword: string, page: number) => {
 			let searchQuery;
 
 			switch (mode) {
@@ -154,21 +210,22 @@ const ContentSearch = ({
 	 * of the result array.
 	 *
 	 * @param {string} mode ContentPicker mode.
-	 * @param {Array} result The array to be normalized.
-	 * @returns {Array} The normalizes array.
+	 * @param {SearchResult[]} result The array to be normalized.
+	 *
+	 * @returns {SearchResult[]} The normalizes array.
 	 */
 	const normalizeResults = useCallback(
-		(result = []) => {
+		(result: SearchResult[] = []): SearchResult[] => {
 			const normalizedResults = filterResults(result);
 
 			if (mode === 'user') {
 				return normalizedResults.map((item) => ({
-					id: item.id,
-					subtype: mode,
-					title: item.name,
-					type: mode,
-					url: item.link,
-				}));
+						id: item.id,
+						subtype: mode,
+						title: item.name || '',
+						type: mode,
+						url: item.link || '',
+					} as SearchResult));
 			}
 
 			return normalizedResults;
@@ -184,9 +241,9 @@ const ContentSearch = ({
 	 * autocomplete component.
 	 *
 	 * @param {string} keyword search query string
-	 * @param {string} page page query string
+	 * @param {number} page page query string
 	 */
-	const handleSearchStringChange = (keyword, page) => {
+	const handleSearchStringChange = (keyword: string, page: number) => {
 		// Reset page and query on empty keyword.
 		if (keyword.trim() === '') {
 			setCurrentPage(1);
@@ -194,12 +251,13 @@ const ContentSearch = ({
 
 		const preparedQuery = prepareSearchQuery(keyword, page);
 
-		// Only do query if not cached or previously errored/cancelled
+		// Only do query if not cached or previously errored/cancelled.
 		if (!searchQueries[preparedQuery] || searchQueries[preparedQuery].controller === 1) {
 			setSearchQueries((queries) => {
-				const newQueries = {};
+				// New queries.
+				const newQueries: {[key: string]: QueryCache} = {};
 
-				// Remove errored or cancelled queries
+				// Remove errored or cancelled queries.
 				Object.keys(queries).forEach((query) => {
 					if (queries[query].controller !== 1) {
 						newQueries[query] = queries[query];
@@ -249,19 +307,19 @@ const ContentSearch = ({
 			} else if (searchQuery.results === null && searchQuery.controller === null) {
 				const controller = new AbortController();
 
-				apiFetch({
+				apiFetch<Response>({
 					path: searchQueryString,
 					signal: controller.signal,
 					parse: false,
 				})
-					.then((results) => {
+					.then((results: Response) => {
 						const totalPages = parseInt(
-							results.headers && results.headers.get('X-WP-TotalPages'),
+							( results.headers && results.headers.get('X-WP-TotalPages') ) || '0',
 							10,
 						);
 
 						// Parse, because we set parse to false to get the headers.
-						results.json().then((results) => {
+						results.json().then((results: SearchResult[]) => {
 							if (mounted.current === false) {
 								return;
 							}
@@ -275,6 +333,7 @@ const ContentSearch = ({
 										results: null,
 										controller: null,
 										totalPages: null,
+										currentPage: null,
 									};
 								}
 
@@ -296,6 +355,8 @@ const ContentSearch = ({
 									newQueries[searchQueryString] = {
 										results: null,
 										controller: null,
+										totalPages: null,
+										currentPage: null,
 									};
 								}
 
@@ -319,7 +380,7 @@ const ContentSearch = ({
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchQueries, searchString, currentPage]);
 
-	let searchResults = null;
+	let searchResults: SearchResult[] | null = null;
 	let isLoading = true;
 	let showLoadMore = false;
 
@@ -340,7 +401,7 @@ const ContentSearch = ({
 					if (i === currentPage) {
 						isLoading = false;
 
-						if (searchQuery.totalPages > searchQuery.currentPage) {
+						if ( searchQuery.totalPages && searchQuery.currentPage && searchQuery.totalPages > searchQuery.currentPage) {
 							showLoadMore = true;
 						}
 					}
@@ -359,11 +420,27 @@ const ContentSearch = ({
 	const hasSearchResults = searchResults && !!searchResults.length;
 	const hasInitialResults = fetchInitialResults && isFocused;
 
+	useEffect(() => {
+		document.addEventListener('mouseup', (e: MouseEvent) => {
+			// Bail if search control or search results container is clicked.
+			if (
+				searchContainer.current?.contains(e.target as Node)
+			) {
+				return;
+			}
+
+			console.log(searchContainer.current);
+			console.log(searchContainer.current?.contains(e.target as Node));
+			console.log(e.target);
+
+			setIsFocused(false);
+		});
+	}, []);
+
 	return (
 		<StyledComponentContext cacheKey="tenup-component-content-search">
-			<StyledNavigableMenu onNavigate={handleOnNavigate} orientation="vertical">
+			<StyledNavigableMenu ref={searchContainer} onNavigate={handleOnNavigate} orientation="vertical">
 				<StyledSearchControl
-					__next40pxDefaultSize
 					value={searchString}
 					onChange={(newSearchString) => {
 						handleSearchStringChange(newSearchString, 1);
@@ -375,15 +452,12 @@ const ContentSearch = ({
 					onFocus={() => {
 						setIsFocused(true);
 					}}
-					onBlur={() => {
-						setIsFocused(false);
-					}}
 				/>
 
 				{hasSearchString || hasInitialResults ? (
 					<>
 						<List className={`${NAMESPACE}-list`}>
-							{isLoading && currentPage === 1 && <StyledSpinner />}
+							{isLoading && currentPage === 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
 
 							{!isLoading && !hasSearchResults && (
 								<li
@@ -397,7 +471,9 @@ const ContentSearch = ({
 									{__('Nothing found.', '10up-block-components')}
 								</li>
 							)}
-							{(!isLoading || currentPage > 1) &&
+							{
+								(!isLoading || currentPage > 1) &&
+								searchResults &&
 								searchResults.map((item, index) => {
 									if (!item.title.length) {
 										return null;
@@ -449,44 +525,12 @@ const ContentSearch = ({
 							</LoadingContainer>
 						)}
 
-						{isLoading && currentPage > 1 && <StyledSpinner />}
+						{isLoading && currentPage > 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
 					</>
 				) : null}
 			</StyledNavigableMenu>
 		</StyledComponentContext>
 	);
-};
-
-ContentSearch.defaultProps = {
-	contentTypes: ['post', 'page'],
-	placeholder: '',
-	perPage: 20,
-	label: '',
-	hideLabelFromVision: true,
-	mode: 'post',
-	excludeItems: [],
-	queryFilter: (query) => query,
-	onSelectItem: () => {
-		console.log('Select!'); // eslint-disable-line no-console
-	},
-	renderItemType: defaultRenderItemType,
-	renderItem: undefined,
-	fetchInitialResults: false,
-};
-
-ContentSearch.propTypes = {
-	contentTypes: PropTypes.array,
-	mode: PropTypes.oneOf(['post', 'user', 'term']),
-	onSelectItem: PropTypes.func,
-	queryFilter: PropTypes.func,
-	placeholder: PropTypes.string,
-	excludeItems: PropTypes.array,
-	label: PropTypes.string,
-	hideLabelFromVision: PropTypes.bool,
-	perPage: PropTypes.number,
-	renderItemType: PropTypes.func,
-	renderItem: PropTypes.func,
-	fetchInitialResults: PropTypes.bool,
 };
 
 export { ContentSearch };

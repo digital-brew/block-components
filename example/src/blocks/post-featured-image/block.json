@@ -1,6 +1,6 @@
 {
 	"name": "example/custom-post-featured-image",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"title": "Custom Post Featured Image",
 	"icon": "format-image",
 	"category": "common",

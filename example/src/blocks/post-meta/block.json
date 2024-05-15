@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/post-meta",
 	"description": "Set some Metadata",
 	"title": "Post Meta",

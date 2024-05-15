@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/content-picker",
 	"title": "Content Picker",
     "description": "Example Block to show the Content Picker in usage",

@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/content-item",
 	"title": "Content Item",
 	"icon": "smiley",
@@ -12,5 +12,5 @@
 	"variations": [],
 	"usesContext": ["postId", "postType", "queryId"],
 	"ancestor": ["core/post-template"],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

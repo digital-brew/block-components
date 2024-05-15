@@ -1,3 +1,4 @@
+import React from 'react';
 import { InnerBlockSlider } from '@10up/block-components';
 import { useBlockProps } from '@wordpress/block-editor';
 

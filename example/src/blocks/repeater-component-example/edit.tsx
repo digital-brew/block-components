@@ -1,23 +1,28 @@
+import React from 'react';
 import { TextControl, ToggleControl, Button } from "@wordpress/components";
 import { close, plus } from "@wordpress/icons";
 import { __ } from '@wordpress/i18n';
+import { useBlockProps } from '@wordpress/block-editor';
 
 import { Repeater } from "@10up/block-components";
 
 export function BlockEdit(props) {
-    function customAddButton(addItem) {
-        return (
-            <div className="repeater-controls">
-                <div className="repeater-item-add">
-                    <Button variant="primary" icon={plus} onClick={addItem}/>
-                </div>
-            </div>
-        );
-    }
-    return (
-        <>
-            <style>
-                {`
+	function customAddButton(addItem) {
+		return (
+			<div className="repeater-controls">
+				<div className="repeater-item-add">
+					<Button variant="primary" icon={plus} onClick={addItem} />
+				</div>
+			</div>
+		);
+	}
+
+	const blockProps = useBlockProps({ className: 'repeater-table-example' });
+
+	return (
+		<>
+			<style>
+				{`
                     .repeater-table-example {
                         width: 100%;
                         border: 1px solid #ccc;
@@ -71,26 +76,26 @@ export function BlockEdit(props) {
                         transition: box-shadow 0.5s ease;
                     }
                 `}
-            </style>
-            <div className="repeater-table-example">
-                <Repeater attribute="items" addButton={customAddButton} allowReordering={true}>
-                    {
-                        (item, index, setItem, removeItem) => (
-                            <div key={index} className="repeater-item">
-                                <div className="repeater-item-page-name">
-                                    <TextControl value={item.pageName} onChange={(val) => setItem({pageName: val})} />
-                                </div>
-                                <div className="repeater-item-visibility">
-                                    <ToggleControl checked={item.visibility} onChange={(val) => setItem({visibility: val})} />
-                                </div>
-                                <div className="repeater-item-remove">
-                                    <Button icon={close} isDestructive label={ __('Remove') } onClick={removeItem} />
-                                </div>
-                            </div>
-                        )
-                    }
-                </Repeater>
-            </div>
-        </>
-    )
+			</style>
+			<div {...blockProps}>
+				<Repeater attribute="items" addButton={customAddButton} allowReordering={true}>
+					{
+						(item, index, setItem, removeItem) => (
+							<div key={index} className="repeater-item">
+								<div className="repeater-item-page-name">
+									<TextControl value={item.pageName} onChange={(val) => setItem({ pageName: val })} />
+								</div>
+								<div className="repeater-item-visibility">
+									<ToggleControl checked={item.visibility} onChange={(val) => setItem({ visibility: val })} />
+								</div>
+								<div className="repeater-item-remove">
+									<Button icon={close} isDestructive label={__('Remove')} onClick={removeItem} />
+								</div>
+							</div>
+						)
+					}
+				</Repeater>
+			</div>
+		</>
+	)
 }

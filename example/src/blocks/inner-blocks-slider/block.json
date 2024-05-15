@@ -1,6 +1,6 @@
 {
     "name": "example/inner-block-slider",
-    "apiVersion": 2,
+    "apiVersion": 3,
     "title": "Inner Block Slider - Example",
     "description": "Example Block to show the Inner block slider in usage",
     "icon": "smiley",
@@ -10,5 +10,5 @@
         "html": false
     },
     "attributes": {},
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

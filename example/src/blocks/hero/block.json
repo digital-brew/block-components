@@ -10,5 +10,5 @@
 	"attributes": {},
 	"variations": [],
 	"parent": ["core/post-content"],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

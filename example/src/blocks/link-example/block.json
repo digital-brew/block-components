@@ -35,6 +35,6 @@
             "default": false
         }
     },
-	"editorScript": "file:./index.js",
+	"editorScript": "file:./index.ts",
 	"render": "file:./render.php"
 }

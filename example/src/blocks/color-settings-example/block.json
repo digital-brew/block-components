@@ -15,5 +15,5 @@
 		}
 	},
 	"variations": [],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

@@ -1,3 +1,4 @@
+import React from 'react';
 import { TextControl, ToggleControl, Button } from "@wordpress/components";
 import { close, plus } from "@wordpress/icons";
 import { __ } from '@wordpress/i18n';

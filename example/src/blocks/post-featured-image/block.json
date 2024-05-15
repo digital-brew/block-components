@@ -11,5 +11,5 @@
 	"attributes": {},
 	"variations": [],
 	"usesContext": ["postId", "postType", "queryId"],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

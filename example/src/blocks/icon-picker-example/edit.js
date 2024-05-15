@@ -1,3 +1,5 @@
+// @ts-check
+import React from 'react';
 import { ToolbarGroup, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, BlockControls, useBlockProps } from '@wordpress/block-editor';

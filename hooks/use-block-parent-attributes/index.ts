@@ -18,7 +18,7 @@ export function useBlockParentAttributes() {
 
 	const { updateBlockAttributes } = useDispatch(blockEditorStore);
 
-	const setParentAttributes = (attributes: {[key: string]: any}) => {
+	const setParentAttributes = (attributes: {[key: string]: unknown}) => {
 		updateBlockAttributes(parentBlockClientId, attributes);
 	};
 

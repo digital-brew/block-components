@@ -4,7 +4,7 @@ import { useAuthor } from './context';
 
 interface NameProps {
   tagName?: keyof JSX.IntrinsicElements;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const Name: React.FC<NameProps> = (props) => {
@@ -22,7 +22,7 @@ export const Name: React.FC<NameProps> = (props) => {
 
 interface FirstNameProps {
 	tagName?: keyof JSX.IntrinsicElements;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const FirstName: React.FC<FirstNameProps> = (props) => {
@@ -34,7 +34,7 @@ export const FirstName: React.FC<FirstNameProps> = (props) => {
 
 interface LastNameProps {
 	tagName?: keyof JSX.IntrinsicElements;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const LastName: React.FC<LastNameProps> = (props) => {
@@ -54,7 +54,7 @@ function useDefaultAvatar() {
 }
 
 interface AvatarProps {
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const Avatar: React.FC<AvatarProps> = (props) => {
@@ -71,7 +71,7 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
 
 interface BioProps {
 	tagName?: keyof JSX.IntrinsicElements;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const Bio: React.FC<BioProps> = (props) => {
@@ -82,7 +82,7 @@ export const Bio: React.FC<BioProps> = (props) => {
 };
 
 interface EmailProps {
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const Email: React.FC<EmailProps> = (props) => {

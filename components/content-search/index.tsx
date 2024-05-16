@@ -429,10 +429,6 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				return;
 			}
 
-			console.log(searchContainer.current);
-			console.log(searchContainer.current?.contains(e.target as Node));
-			console.log(e.target);
-
 			setIsFocused(false);
 		});
 	}, []);

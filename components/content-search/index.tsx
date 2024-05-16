@@ -420,9 +420,10 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	const hasSearchResults = searchResults && !!searchResults.length;
 	const hasInitialResults = fetchInitialResults && isFocused;
 
+	// Add event listener to close search results when clicking outside of the search container.
 	useEffect(() => {
 		document.addEventListener('mouseup', (e: MouseEvent) => {
-			// Bail if search control or search results container is clicked.
+			// Bail if anywhere inside search container is clicked.
 			if (
 				searchContainer.current?.contains(e.target as Node)
 			) {

@@ -10,7 +10,7 @@ import type { Author } from '../author/context';
 
 interface PostAuthorProps {
 	children?: React.ReactNode | ((author: Author) => React.ReactNode);
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const PostAuthor: React.FC<PostAuthorProps> & {

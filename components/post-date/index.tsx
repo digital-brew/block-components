@@ -41,7 +41,7 @@ interface PostDateProps {
 	/**
 	 * Remaining props to pass to the time element.
 	 */
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const PostDate: React.FC<PostDateProps> = ({ placeholder = __('No date set', 'tenup'), format, ...rest}) => {

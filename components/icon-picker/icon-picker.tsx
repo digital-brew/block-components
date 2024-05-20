@@ -53,7 +53,7 @@ const StyledIconButton = styled(Icon)`
 	}
 `;
 
-export interface IconPickerProps {
+export type IconPickerProps = Omit<React.ComponentProps<typeof BaseControl>, 'children'> & {
 	/**
 	 * Value of the selected icon
 	 */
@@ -62,10 +62,6 @@ export interface IconPickerProps {
 	 * Change handler for when a new icon is selected
 	 */
 	onChange: (icon: { name: string; iconSet: string }) => void;
-	/**
-	 * Label of the icon picker
-	 */
-	label?: string;
 }
 
 export const IconPicker: React.FC<IconPickerProps> = (props) => {

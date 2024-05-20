@@ -1,28 +1,33 @@
-import PropTypes from 'prop-types';
 import { Spinner } from '@wordpress/components';
 import { forwardRef } from '@wordpress/element';
 import { useIcon } from '../../hooks/use-icons';
 
-/**
- * Icon
- *
- * @typedef IconProps
- * @property {string } name name of the icon
- * @property {string } iconSet name of the icon set
- *
- * @param {IconProps} props IconProps
- * @returns {*}
- */
-export const Icon = forwardRef(function Icon(props, ref) {
+interface IconProps {
+	/**
+	 * Name of the icon
+	 */
+	name: string;
+	/**
+	 * Name of the icon set
+	 */
+	iconSet: string;
+	/**
+	 * Click handler
+	 */
+	onClick?: () => void;
+}
+
+export const Icon: React.FC<IconProps> = forwardRef<HTMLDivElement, IconProps>(function Icon(props, ref) {
 	const { name, iconSet, onClick, ...rest } = props;
 	const icon = useIcon(iconSet, name);
 
-	if (!icon) {
+	if (!icon || Array.isArray(icon)) {
+		// @ts-ignore -- Types on WP seem to require onPointerEnterCapture and onPointerLeaveCapture
 		return <Spinner />;
 	}
 
 	// only add interactive props to component if a onClick handler was provided
-	const iconProps = {};
+	const iconProps: React.JSX.IntrinsicElements['div'] = {};
 	if (typeof onClick === 'function') {
 		iconProps.role = 'button';
 		iconProps.tabIndex = 0;
@@ -35,13 +40,3 @@ export const Icon = forwardRef(function Icon(props, ref) {
 		<div {...iconProps} dangerouslySetInnerHTML={{ __html: icon.source }} {...rest} ref={ref} />
 	);
 });
-
-Icon.defaultProps = {
-	onClick: undefined,
-};
-
-Icon.propTypes = {
-	name: PropTypes.string.isRequired,
-	onClick: PropTypes.func,
-	iconSet: PropTypes.string.isRequired,
-};

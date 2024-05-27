@@ -18,7 +18,7 @@ interface PostMetaProps {
 	/**
 	 * Additional props to pass to the component.
 	 */
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 export const PostMeta: React.FC<PostMetaProps> & {

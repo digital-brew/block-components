@@ -13,7 +13,7 @@ interface PostMetaProps {
 	/**
 	 * The children render prop.
 	 */
-	children?: ((metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode);
+	children?: (metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode;
 
 	/**
 	 * Additional props to pass to the component.
@@ -82,7 +82,13 @@ const MetaNumber: React.FC<MetaNumberProps> = (props) => {
 	const { metaKey } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
 
-	return <NumberControl value={metaValue} onChange={value => setMetaValue(parseInt(value ?? ''))} {...props} />;
+	return (
+		<NumberControl
+			value={metaValue}
+			onChange={(value) => setMetaValue(parseInt(value ?? ''))}
+			{...props}
+		/>
+	);
 };
 
 interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {

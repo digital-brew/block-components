@@ -3,21 +3,21 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useAuthor } from './context';
 
 interface NameProps {
-  tagName?: keyof JSX.IntrinsicElements;
-  [key: string]: unknown;
+	tagName?: keyof JSX.IntrinsicElements;
+	[key: string]: unknown;
 }
 
 export const Name: React.FC<NameProps> = (props) => {
-  const { tagName: TagName = 'span', ...rest } = props;
-  const { name, link } = useAuthor();
+	const { tagName: TagName = 'span', ...rest } = props;
+	const { name, link } = useAuthor();
 
-  const wrapperProps = { ...rest };
+	const wrapperProps = { ...rest };
 
-  if (TagName === 'a' && link) {
-    wrapperProps.href = link;
-  }
+	if (TagName === 'a' && link) {
+		wrapperProps.href = link;
+	}
 
-  return <TagName {...wrapperProps}>{name}</TagName>;
+	return <TagName {...wrapperProps}>{name}</TagName>;
 };
 
 interface FirstNameProps {

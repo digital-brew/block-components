@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import { DateTimePicker } from '@wordpress/components';
 import { getSettings, dateI18n } from '@wordpress/date';
 import { useEntityProp } from '@wordpress/core-data';
+import type { DateSettings } from '@wordpress/date';
 import { usePopover } from '../../hooks/use-popover';
 import { usePost } from '../../hooks';
-import type { DateSettings } from '@wordpress/date';
 
 interface PostDatePickerProps {
 	date?: string;
@@ -44,7 +44,11 @@ interface PostDateProps {
 	[key: string]: unknown;
 }
 
-export const PostDate: React.FC<PostDateProps> = ({ placeholder = __('No date set', 'tenup'), format, ...rest}) => {
+export const PostDate: React.FC<PostDateProps> = ({
+	placeholder = __('No date set', 'tenup'),
+	format,
+	...rest
+}) => {
 	const { postId, postType, isEditable } = usePost();
 
 	const [date, setDate] = useEntityProp('postType', postType, 'date', postId as string);

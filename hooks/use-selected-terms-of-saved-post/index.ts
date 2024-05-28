@@ -17,9 +17,12 @@ export const useSelectedTermsOfSavedPost = (taxonomyName: string, postId: number
 			] as const;
 
 			const terms = getEntityRecords<WP_REST_API_Term>(...selectedTermsQuery);
-			const hasResolvedTerms: boolean = hasFinishedResolution('getEntityRecords', selectedTermsQuery);
+			const hasResolvedTerms: boolean = hasFinishedResolution(
+				'getEntityRecords',
+				selectedTermsQuery,
+			);
 
-			return [terms, hasResolvedTerms ] as const;
+			return [terms, hasResolvedTerms] as const;
 		},
 		[taxonomyName, postId],
 	);

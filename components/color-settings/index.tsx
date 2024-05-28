@@ -9,64 +9,64 @@ interface ColorSettingProps {
 	/**
 	 * If this property is added, a label will be generated using label property as the content.
 	 */
-	label?: string,
+	label?: string;
 
 	/**
 	 * If true, the label will only be visible to screen readers.
 	 */
-	hideLabelFromVision?: boolean,
+	hideLabelFromVision?: boolean;
 
 	/**
 	 * If this property is added, a help text will be generated using help property as the content.
 	 */
-	help?: string,
+	help?: string;
 
 	/**
 	 * If no className is passed only components-base-control is used.
 	 */
-	className?: string,
+	className?: string;
 
 	/**
 	 * Whether to allow custom color or not.
 	 */
-	disableCustomColors?: boolean,
+	disableCustomColors?: boolean;
 
 	/**
 	 * currently active value.
 	 */
-	value?: string,
+	value?: string;
 
 	/**
 	 * Whether the palette should have a clearing button or not.
 	 */
-	clearable?: boolean,
+	clearable?: boolean;
 
 	/**
 	 * Array with the colors to be shown.
 	 */
-	colors: Array<Color>,
+	colors: Array<Color>;
 
 	/**
 	 * Callback called when a color is selected.
 	 */
-	onChange: Function,
+	onChange: Function;
 }
 
 interface Color {
 	/**
 	 * Color name.
 	 */
-	name: string,
+	name: string;
 
 	/**
 	 * Color hex code.
 	 */
-	color: string,
+	color: string;
 }
 
 // eslint-disable-next-line import/prefer-default-export
 export const ColorSetting: React.FC<ColorSettingProps> = ({
-	label= '',
+	label = '',
 	help = '',
 	className = '',
 	hideLabelFromVision = false,

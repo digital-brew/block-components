@@ -1,8 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import { MediaReplaceFlow, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
-import { useMedia } from '../../hooks/use-media';
 import type { Attachment } from '@wordpress/core-data';
+import { useMedia } from '../../hooks/use-media';
 
 interface MediaToolbarProps {
 	/**
@@ -37,7 +37,12 @@ interface MediaToolbarProps {
  * @param {object} props options
  * @returns {React.ReactElement} markup of the ToolbarGroup
  */
-export const MediaToolbar: React.FC<MediaToolbarProps> = ( { onSelect, onRemove, isOptional = false, id } ) => {
+export const MediaToolbar: React.FC<MediaToolbarProps> = ({
+	onSelect,
+	onRemove,
+	isOptional = false,
+	id,
+}) => {
 	const hasImage = !!id;
 	const { media } = useMedia(id);
 

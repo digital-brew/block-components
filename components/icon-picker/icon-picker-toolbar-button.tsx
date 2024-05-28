@@ -33,14 +33,14 @@ export const IconPickerToolbarButton: React.FC<IconPickerToolbarButtonProps> = (
 			}}
 			renderToggle={({ isOpen, onToggle }) => (
 				<ToolbarButton
-					onClick={ onToggle }
-					aria-expanded={ isOpen }
-					icon={ buttonIcon }
-					placeholder={ undefined }
-					onPointerEnterCapture={ undefined }
-					onPointerLeaveCapture={ undefined }
+					onClick={onToggle}
+					aria-expanded={isOpen}
+					icon={buttonIcon}
+					placeholder={undefined}
+					onPointerEnterCapture={undefined}
+					onPointerLeaveCapture={undefined}
 				>
-					{ buttonLabel }
+					{buttonLabel}
 				</ToolbarButton>
 			)}
 			renderContent={() => <StyledIconPickerDropdown {...props} />}

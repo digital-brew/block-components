@@ -18,7 +18,10 @@ export const useAllTerms = (taxonomyName: string) => {
 
 			const terms = getEntityRecords<WP_REST_API_Term>(...termsSelector);
 
-			const hasResolvedTerms: boolean = hasFinishedResolution('getEntityRecords', termsSelector);
+			const hasResolvedTerms: boolean = hasFinishedResolution(
+				'getEntityRecords',
+				termsSelector,
+			);
 
 			return [terms, hasResolvedTerms] as const;
 		},

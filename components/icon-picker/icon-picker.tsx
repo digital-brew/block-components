@@ -28,9 +28,9 @@ const StyledIconGrid = styled(Grid)`
 `;
 
 const StyledIconButton = styled(Icon)`
-	background-color: ${({ selected } : { selected: boolean }) => (selected ? 'black' : 'white')};
-	color: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
-	fill: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
+	background-color: ${({ selected }: { selected: boolean }) => (selected ? 'black' : 'white')};
+	color: ${({ selected }: { selected: boolean }) => (selected ? 'white' : 'black')};
+	fill: ${({ selected }: { selected: boolean }) => (selected ? 'white' : 'black')};
 	padding: 5px;
 	border: none;
 	border-radius: 4px;
@@ -62,7 +62,7 @@ export type IconPickerProps = Omit<React.ComponentProps<typeof BaseControl>, 'ch
 	 * Change handler for when a new icon is selected
 	 */
 	onChange: (icon: { name: string; iconSet: string }) => void;
-}
+};
 
 export const IconPicker: React.FC<IconPickerProps> = (props) => {
 	const { value, onChange, label = '', ...rest } = props;
@@ -98,15 +98,17 @@ export const IconPicker: React.FC<IconPickerProps> = (props) => {
  * workaround for that. It will just wrap the children in a div and pass that to the
  * Tooltip component.
  */
-const TooltipContent = forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(function TooltipContent(props, ref) {
-	const { children } = props;
+const TooltipContent = forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
+	function TooltipContent(props, ref) {
+		const { children } = props;
 
-	return (
-		<div ref={ref} className="component-icon-picker__tooltip-content" {...props}>
-			{children}
-		</div>
-	);
-});
+		return (
+			<div ref={ref} className="component-icon-picker__tooltip-content" {...props}>
+				{children}
+			</div>
+		);
+	},
+);
 
 interface IconLabelProps {
 	/**
@@ -170,7 +172,7 @@ const IconGridItem = memo<IconGridItemProps>((props) => {
 	}
 
 	// We need to cast the IconLabel to a string because types in WP are not correct
-	const label = <IconLabel isChecked={isChecked} icon={icon} /> as unknown as string;
+	const label = (<IconLabel isChecked={isChecked} icon={icon} />) as unknown as string;
 
 	return (
 		<div style={style}>

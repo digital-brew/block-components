@@ -42,7 +42,7 @@ export const AttributeRepeater = ({ children, attribute, addButton, allowReorder
 		};
 	});
 
-	if ( defaultRepeaterData.length ) {
+	if (defaultRepeaterData.length) {
 		defaultRepeaterData[0].id = uuid();
 	}
 

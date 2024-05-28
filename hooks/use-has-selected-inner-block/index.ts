@@ -10,6 +10,6 @@ export function useHasSelectedInnerBlock(): boolean {
 
 	return useSelect(
 		(select) => select(blockEditorStore).hasSelectedInnerBlock(clientId, true),
-		[clientId]
+		[clientId],
 	);
 }

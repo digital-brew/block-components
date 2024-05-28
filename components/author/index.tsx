@@ -66,6 +66,7 @@ export const Avatar: React.FC<AvatarProps> = (props) => {
 
 	const avatarSourceUrl = avatarUrls ? avatarUrls[avatarUrls.length - 1] : defaultAvatar;
 
+	// eslint-disable-next-line jsx-a11y/alt-text
 	return <img src={avatarSourceUrl} {...rest} />;
 };
 

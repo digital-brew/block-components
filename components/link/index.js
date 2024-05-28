@@ -38,6 +38,8 @@ function getSuggestionsQuery(type, kind) {
 			return { type: 'term', subtype: 'post_tag' };
 		case 'post_format':
 			return { type: 'post-format' };
+		default:
+			break;
 	}
 
 	switch (kind) {

@@ -33,9 +33,6 @@ interface MediaToolbarProps {
  * with some buttons to add or remove an image.
  *
  * This should be used on components that have optional images.
- *
- * @param {object} props options
- * @returns {React.ReactElement} markup of the ToolbarGroup
  */
 export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 	onSelect,

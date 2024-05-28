@@ -37,9 +37,9 @@ export const Icon: React.FC<IconProps> = forwardRef<HTMLDivElement, IconProps>(
 		}
 
 		return (
-			// eslint-disable-next-line react/no-danger
 			<div
 				{...iconProps}
+				// eslint-disable-next-line react/no-danger
 				dangerouslySetInnerHTML={{ __html: icon.source }}
 				{...rest}
 				ref={ref}

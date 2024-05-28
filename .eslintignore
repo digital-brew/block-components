@@ -1,3 +1,6 @@
 example
 cypress
 **/*.test.js
+**/*.test.ts
+**/*.test.txs
+dist/

@@ -1,6 +1,6 @@
 import { Spinner, NavigableMenu, Button, SearchControl } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
-import { useState, useRef, useEffect, useCallback } from '@wordpress/element';
+import { useState, useRef, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
@@ -8,14 +8,12 @@ import {useMergeRefs} from '@wordpress/compose';
 import SearchItem, { Suggestion } from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
 
-import type { QueryCache, SearchResult, ContentSearchProps } from './types';
+import type { SearchResult, ContentSearchProps } from './types';
 
 import {
 	QueryClient,
 	QueryClientProvider,
-	useQuery,
 	useInfiniteQuery,
-	QueryFunction,
   } from '@tanstack/react-query';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
 

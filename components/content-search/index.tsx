@@ -4,8 +4,23 @@ import { useState, useRef, useEffect, useCallback } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
+import {useMergeRefs} from '@wordpress/compose';
 import SearchItem, { Suggestion } from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
+
+import type { QueryCache, SearchResult, ContentSearchProps } from './types';
+
+import {
+	QueryClient,
+	QueryClientProvider,
+	useQuery,
+	useInfiniteQuery,
+	QueryFunction,
+  } from '@tanstack/react-query';
+import { useOnClickOutside } from '../../hooks/use-on-click-outside';
+
+
+const queryClient = new QueryClient();
 
 const NAMESPACE = 'tenup-content-search';
 
@@ -47,57 +62,6 @@ const StyledSearchControl = styled(SearchControl)`
 	width: 100%;
 `;
 
-interface QueryCache {
-	results: SearchResult[] | null;
-	controller: null | number | AbortController;
-	currentPage: number | null;
-	totalPages: number | null;
-}
-
-interface SearchResult {
-	id: number;
-	title: string;
-	url: string;
-	type: string;
-	subtype: string;
-	link?: string;
-	name?: string;
-}
-
-interface QueryArgs {
-	perPage: number;
-	page: number;
-	contentTypes: string[];
-	mode: string;
-	keyword: string;
-}
-
-interface RenderItemComponentProps {
-	item: Suggestion;
-	onSelect: () => void;
-	searchTerm?: string;
-	isSelected?: boolean;
-	id?: string;
-	contentTypes: string[];
-	renderType?: (suggestion: Suggestion) => string;
-}
-
-interface ContentSearchProps {
-	onSelectItem: (item: Suggestion) => void;
-	placeholder?: string;
-	label?: string;
-	hideLabelFromVision?: boolean;
-	contentTypes?: string[];
-	mode?: 'post' | 'user' | 'term';
-	perPage?: number;
-	queryFilter?: (query: string, args: QueryArgs) => string;
-	excludeItems?: {
-		id: number;
-	}[];
-	renderItemType?: (props: Suggestion) => string;
-	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
-	fetchInitialResults?: boolean;
-}
 
 const ContentSearch: React.FC<ContentSearchProps> = ({
 	onSelectItem = () => {
@@ -116,12 +80,8 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	fetchInitialResults,
 }) => {
 	const [searchString, setSearchString] = useState('');
-	const [searchQueries, setSearchQueries] = useState<{[key: string]: QueryCache}>({});
 	const [selectedItem, setSelectedItem] = useState<number|null>(null);
-	const [currentPage, setCurrentPage] = useState(1);
 	const [isFocused, setIsFocused] = useState(false);
-
-	const mounted = useRef(true);
 
 	const searchContainer = useRef<HTMLDivElement>(null);
 
@@ -233,214 +193,65 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		[mode, filterResults],
 	);
 
-	/**
-	 * handleSearchStringChange
-	 *
-	 * Using the keyword and the list of tags that are linked to the parent
-	 * block search for posts/terms/users that match and return them to the
-	 * autocomplete component.
-	 *
-	 * @param {string} keyword search query string
-	 * @param {number} page page query string
-	 */
-	const handleSearchStringChange = (keyword: string, page: number) => {
-		// Reset page and query on empty keyword.
-		if (keyword.trim() === '') {
-			setCurrentPage(1);
-		}
+	const clickOutsideRef = useOnClickOutside(() => {
+		setIsFocused(false);
+	});
 
-		const preparedQuery = prepareSearchQuery(keyword, page);
+	const mergedRef = useMergeRefs([searchContainer, clickOutsideRef]);
 
-		// Only do query if not cached or previously errored/cancelled.
-		if (!searchQueries[preparedQuery] || searchQueries[preparedQuery].controller === 1) {
-			setSearchQueries((queries) => {
-				// New queries.
-				const newQueries: {[key: string]: QueryCache} = {};
-
-				// Remove errored or cancelled queries.
-				Object.keys(queries).forEach((query) => {
-					if (queries[query].controller !== 1) {
-						newQueries[query] = queries[query];
-					}
-				});
-
-				newQueries[preparedQuery] = {
-					results: null,
-					controller: null,
-					currentPage: page,
-					totalPages: null,
-				};
-
-				return newQueries;
-			});
-		}
-
-		setCurrentPage(page);
-
-		setSearchString(keyword);
-	};
-
-	const handleLoadMore = () => {
-		handleSearchStringChange(searchString, currentPage + 1);
-	};
-
-	useEffect(() => {
-		// Trigger initial fetch if enabled.
-		if (fetchInitialResults) {
-			handleSearchStringChange('', 1);
-		}
-
-		return () => {
-			mounted.current = false;
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
-
-	useEffect(() => {
-		Object.keys(searchQueries).forEach((searchQueryString) => {
-			const searchQuery = searchQueries[searchQueryString];
-
-			if (searchQueryString !== prepareSearchQuery(searchString, currentPage)) {
-				if (searchQuery.controller && typeof searchQuery.controller === 'object') {
-					searchQuery.controller.abort();
-				}
-			} else if (searchQuery.results === null && searchQuery.controller === null) {
-				const controller = new AbortController();
-
-				apiFetch<Response>({
+	const {
+		status,
+		data,
+		error,
+		isFetching,
+		isFetchingNextPage,
+		fetchNextPage,
+		hasNextPage,
+	  } = useInfiniteQuery(
+		{
+			queryKey: ['search', searchString, contentTypes.join(','), mode, perPage],
+			queryFn: async ({ pageParam = 1 }) => {
+				const searchQueryString = prepareSearchQuery(searchString, pageParam);
+				const response = await apiFetch<Response>({
 					path: searchQueryString,
-					signal: controller.signal,
 					parse: false,
-				})
-					.then((results: Response) => {
-						const totalPages = parseInt(
-							( results.headers && results.headers.get('X-WP-TotalPages') ) || '0',
-							10,
-						);
-
-						// Parse, because we set parse to false to get the headers.
-						results.json().then((results: SearchResult[]) => {
-							if (mounted.current === false) {
-								return;
-							}
-							const normalizedResults = normalizeResults(results);
-
-							setSearchQueries((queries) => {
-								const newQueries = { ...queries };
-
-								if (typeof newQueries[searchQueryString] === 'undefined') {
-									newQueries[searchQueryString] = {
-										results: null,
-										controller: null,
-										totalPages: null,
-										currentPage: null,
-									};
-								}
-
-								newQueries[searchQueryString].results = normalizedResults;
-								newQueries[searchQueryString].totalPages = totalPages;
-								newQueries[searchQueryString].controller = 0;
-
-								return newQueries;
-							});
-						});
-					})
-					.catch((error) => {
-						// fetch_error means the request was aborted
-						if (error.code !== 'fetch_error') {
-							setSearchQueries((queries) => {
-								const newQueries = { ...queries };
-
-								if (typeof newQueries[searchQueryString] === 'undefined') {
-									newQueries[searchQueryString] = {
-										results: null,
-										controller: null,
-										totalPages: null,
-										currentPage: null,
-									};
-								}
-
-								newQueries[searchQueryString].controller = 1;
-								newQueries[searchQueryString].results = [];
-
-								return newQueries;
-							});
-						}
-					});
-
-				setSearchQueries((queries) => {
-					const newQueries = { ...queries };
-
-					newQueries[searchQueryString].controller = controller;
-
-					return newQueries;
 				});
-			}
-		});
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [searchQueries, searchString, currentPage]);
 
-	let searchResults: SearchResult[] | null = null;
-	let isLoading = true;
-	let showLoadMore = false;
+				const totalPages = parseInt(
+					( response.headers && response.headers.get('X-WP-TotalPages') ) || '0',
+					10,
+				);
 
-	for (let i = 1; i <= currentPage; i++) {
-		// eslint-disable-next-line no-loop-func
-		Object.keys(searchQueries).forEach((searchQueryString) => {
-			const searchQuery = searchQueries[searchQueryString];
+				const results = await response.json();
+				const normalizedResults = normalizeResults(results);
 
-			if (searchQueryString === prepareSearchQuery(searchString, i)) {
-				if (searchQuery.results !== null) {
-					if (searchResults === null) {
-						searchResults = [];
-					}
+				const hasNextPage = totalPages > pageParam;
+				const hasPreviousPage = pageParam > 1;
 
-					searchResults = searchResults.concat(searchQuery.results);
+				return {
+					results: normalizedResults,
+					nextPage: hasNextPage ? pageParam + 1 : undefined,
+					previousPage: hasPreviousPage ? pageParam - 1 : undefined,
+				};
+			},
+			getNextPageParam: (lastPage) => lastPage.nextPage,
+			getPreviousPageParam: (firstPage) => firstPage.previousPage,
+			initialPageParam: 1
+		}
+	);
 
-					// If on last page, maybe show load more button
-					if (i === currentPage) {
-						isLoading = false;
+	const searchResults = data?.pages.map((page) => page?.results).flat() || undefined;
 
-						if ( searchQuery.totalPages && searchQuery.currentPage && searchQuery.totalPages > searchQuery.currentPage) {
-							showLoadMore = true;
-						}
-					}
-				} else if (searchQuery.controller === 1 && i === currentPage) {
-					isLoading = false;
-					showLoadMore = false;
-				}
-			}
-		});
-	}
-
-	if (searchResults !== null) {
-		searchResults = filterResults(searchResults);
-	}
 	const hasSearchString = !!searchString.length;
 	const hasSearchResults = searchResults && !!searchResults.length;
 	const hasInitialResults = fetchInitialResults && isFocused;
 
-	// Add event listener to close search results when clicking outside of the search container.
-	useEffect(() => {
-		document.addEventListener('mouseup', (e: MouseEvent) => {
-			// Bail if anywhere inside search container is clicked.
-			if (
-				searchContainer.current?.contains(e.target as Node)
-			) {
-				return;
-			}
-
-			setIsFocused(false);
-		});
-	}, []);
-
 	return (
-		<StyledComponentContext cacheKey="tenup-component-content-search">
-			<StyledNavigableMenu ref={searchContainer} onNavigate={handleOnNavigate} orientation="vertical">
+			<StyledNavigableMenu ref={mergedRef} onNavigate={handleOnNavigate} orientation="vertical">
 				<StyledSearchControl
 					value={searchString}
 					onChange={(newSearchString) => {
-						handleSearchStringChange(newSearchString, 1);
+						setSearchString(newSearchString);
 					}}
 					label={label}
 					hideLabelFromVision={hideLabelFromVision}
@@ -454,9 +265,9 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				{hasSearchString || hasInitialResults ? (
 					<>
 						<List className={`${NAMESPACE}-list`}>
-							{isLoading && currentPage === 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+							{status === 'pending' && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
 
-							{!isLoading && !hasSearchResults && (
+							{!!error || (!isFetching && !hasSearchResults) && (
 								<li
 									className={`${NAMESPACE}-list-item components-button`}
 									style={{
@@ -469,10 +280,10 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 								</li>
 							)}
 							{
-								(!isLoading || currentPage > 1) &&
+								status === 'success' &&
 								searchResults &&
 								searchResults.map((item, index) => {
-									if (!item.title.length) {
+									if (!item || !item.title.length) {
 										return null;
 									}
 
@@ -514,20 +325,29 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 								})}
 						</List>
 
-						{!isLoading && hasSearchResults && showLoadMore && (
+						{hasSearchResults && hasNextPage && (
 							<LoadingContainer>
-								<Button onClick={handleLoadMore} variant="secondary">
+								<Button onClick={() => fetchNextPage()} variant="secondary">
 									{__('Load more', '10up-block-components')}
 								</Button>
 							</LoadingContainer>
 						)}
 
-						{isLoading && currentPage > 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+						{isFetchingNextPage && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
 					</>
 				) : null}
 			</StyledNavigableMenu>
+	);
+};
+
+const ContentSearchWrapper: React.FC<ContentSearchProps> = (props) => {
+	return (
+		<StyledComponentContext cacheKey="tenup-component-content-search">
+			<QueryClientProvider client={queryClient}>
+				<ContentSearch {...props} />
+			</QueryClientProvider>
 		</StyledComponentContext>
 	);
 };
 
-export { ContentSearch };
+export { ContentSearchWrapper as ContentSearch};

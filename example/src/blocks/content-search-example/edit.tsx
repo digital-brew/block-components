@@ -7,6 +7,7 @@ import { ContentSearch } from '@10up/block-components';
 
 export const BlockEdit = (props) => {
 	const {
+		attributes: {selectedPost},
 		setAttributes
 	} = props;
 
@@ -30,6 +31,12 @@ export const BlockEdit = (props) => {
 			</InspectorControls>
 			<div {...blockProps}>
 				<Placeholder label={__('Post Searcher', 'example')} instructions={__('Use the text field to search for a post', 'example')}>
+				<div>
+						{
+							selectedPost &&
+							<p>{__('Selected Post:', 'example')} {selectedPost.title}</p>
+						}
+					</div>
 					<ContentSearch
 						label={__('Select a Post or Page', 'example')}
 						contentTypes={['page', 'post']}

@@ -1,12 +1,5 @@
 import type { Suggestion } from './SearchItem';
 
-export interface QueryCache {
-	results: SearchResult[] | null;
-	controller: null | number | AbortController;
-	currentPage: number | null;
-	totalPages: number | null;
-}
-
 export interface SearchResult {
 	id: number;
 	title: string;

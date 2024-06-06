@@ -4,3 +4,4 @@ cypress
 **/*.test.ts
 **/*.test.txs
 dist/
+cypress.config.js

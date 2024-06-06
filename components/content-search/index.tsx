@@ -207,7 +207,14 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		hasNextPage,
 	  } = useInfiniteQuery(
 		{
-			queryKey: ['search', searchString, contentTypes.join(','), mode, perPage],
+			queryKey: [
+				'search',
+				searchString,
+				contentTypes.join(','),
+				mode,
+				perPage,
+				queryFilter,
+			],
 			queryFn: async ({ pageParam = 1 }) => {
 				const searchQueryString = prepareSearchQuery(searchString, pageParam);
 				const response = await apiFetch<Response>({

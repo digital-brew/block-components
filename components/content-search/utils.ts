@@ -1,21 +1,18 @@
-import type { ContentSearchMode, Modify  } from "./types";
-import type { WP_REST_API_User, WP_REST_API_Post, WP_REST_API_Term } from "wp-types";
+import type { ContentSearchMode, Modify, QueryFilter  } from "./types";
+import type { WP_REST_API_User, WP_REST_API_Search_Result } from "wp-types";
+import apiFetch from '@wordpress/api-fetch';
+import { addQueryArgs } from '@wordpress/url';
 
 interface IdentifiableObject extends Object {
 	id: number;
 };
 
 interface FilterResultsArgs {
-  results: WP_REST_API_User[] | WP_REST_API_Post[] | WP_REST_API_Term[];
+  results: WP_REST_API_User[] | WP_REST_API_Search_Result[];
   excludeItems: Array<IdentifiableObject>;
 }
 
-/**
- * Filters results.
- *
- * @returns Filtered results.
- */
-export const filterResults = ({ results, excludeItems }: FilterResultsArgs) => {
+export const filterOutExcludedItems = ({ results, excludeItems }: FilterResultsArgs) => {
 	return results.filter((result) => {
 		let keep = true;
 
@@ -33,13 +30,7 @@ interface PrepareSearchQueryArgs {
   mode: ContentSearchMode;
   perPage: number;
   contentTypes: Array<string>;
-  queryFilter: (queryString: string, options: {
-	perPage: number;
-	page: number;
-	contentTypes: Array<string>;
-	mode: ContentSearchMode;
-	keyword: string;
-  }) => string;
+  queryFilter: QueryFilter
 }
 
 /**
@@ -52,12 +43,20 @@ export const prepareSearchQuery = ({ keyword, page, mode, perPage, contentTypes,
 
 	switch (mode) {
 		case 'user':
-			searchQuery = `wp/v2/users/?search=${keyword}`;
+			searchQuery = addQueryArgs('wp/v2/users', {
+				search: keyword,
+			});
 			break;
 		default:
-			searchQuery = `wp/v2/search/?search=${keyword}&subtype=${contentTypes.join(
-				',',
-			)}&type=${mode}&_embed&per_page=${perPage}&page=${page}`;
+			searchQuery = addQueryArgs('wp/v2/search', {
+				search: keyword,
+				subtype: contentTypes.join(','),
+				type: mode,
+				_embed: true,
+				per_page: perPage,
+				page,
+			});
+
 			break;
 	}
 
@@ -72,50 +71,99 @@ export const prepareSearchQuery = ({ keyword, page, mode, perPage, contentTypes,
 
 interface NormalizeResultsArgs {
   mode: ContentSearchMode;
-  results: WP_REST_API_Post[] | WP_REST_API_User[] | WP_REST_API_Term[]
+  results: WP_REST_API_Search_Result[] | WP_REST_API_User[]
   excludeItems: Array<IdentifiableObject>;
 }
 
 /**
  * Depending on the mode value, this method normalizes the format
  * of the result array.
- *
- * @returns Normalized results.
  */
 export const normalizeResults = ({ mode, results, excludeItems }: NormalizeResultsArgs): Array<{
 	id: number;
-	subtype: ContentSearchMode;
+	subtype: ContentSearchMode | string;
 	title: string;
-	type: ContentSearchMode;
+	type: ContentSearchMode | string;
 	url: string;
 }> => {
-	const normalizedResults = filterResults({ results, excludeItems });
-
-	return normalizedResults.map((item) => {
-
+	const filteredResults = filterOutExcludedItems({ results, excludeItems });
+	return filteredResults.map((item) => {
 		let title: string;
+		let url: string;
+		let type: string;
+		let subtype: string;
 
 		switch (mode) {
-			case 'post':
-				const postItem = item as unknown as Modify<WP_REST_API_Post, { title: string }>;
-				title = postItem.title;
-				break;
-			case 'term':
-				const termItem = item as WP_REST_API_Term;
-				title = termItem.name;
-				break;
 			case 'user':
 				const userItem = item as WP_REST_API_User;
 				title = userItem.name;
+				url = userItem.link;
+				type = mode;
+				subtype = mode;
+				break;
+			default:
+				const searchItem = item as WP_REST_API_Search_Result;
+				title = searchItem.title;
+				url = searchItem.url;
+				type = searchItem.type;
+				subtype = searchItem.subtype;
 				break;
 		}
 
 		return {
-			id: item.id,
-			subtype: mode,
-			title: title,
-			type: mode,
-			url: item.link,
+			id: item.id as number,
+			subtype,
+			title,
+			type,
+			url,
 		};
 	});
 };
+
+export type NormalizedSuggestions = ReturnType<typeof normalizeResults>;
+export type NormalizedSuggestion = NormalizedSuggestions[number];
+
+interface FetchSearchResultsArgs {
+	keyword: string;
+	page: number;
+	mode: ContentSearchMode;
+	perPage: number;
+	contentTypes: Array<string>;
+	queryFilter: QueryFilter;
+	excludeItems: Array<IdentifiableObject>;
+}
+
+export async function fetchSearchResults({ keyword, page, mode, perPage, contentTypes, queryFilter, excludeItems }: FetchSearchResultsArgs) {
+	const searchQueryString = prepareSearchQuery({keyword, page, mode, perPage, contentTypes, queryFilter});
+	const response = await apiFetch<Response>({
+		path: searchQueryString,
+		parse: false,
+	});
+
+	const totalPages = parseInt(
+		( response.headers && response.headers.get('X-WP-TotalPages') ) || '0',
+		10,
+	);
+
+	let results: WP_REST_API_User[] | WP_REST_API_Search_Result[];
+
+	switch (mode) {
+		case 'user':
+		  results = await response.json() as WP_REST_API_User[];
+		  break;
+		 default:
+		  results = await response.json() as WP_REST_API_Search_Result[];
+		  break;
+	}
+
+	const normalizedResults = normalizeResults({results, excludeItems, mode});
+
+	const hasNextPage = totalPages > page;
+	const hasPreviousPage = page > 1;
+
+	return {
+		results: normalizedResults,
+		nextPage: hasNextPage ? page + 1 : undefined,
+		previousPage: hasPreviousPage ? page - 1 : undefined,
+	};
+}

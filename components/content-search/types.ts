@@ -1,9 +1,8 @@
-import type {
-	WP_REST_API_User,
-	WP_REST_API_Post,
-	WP_REST_API_Term,
-} from 'wp-types';
-import type { Suggestion } from './SearchItem';
+import { NormalizedSuggestion } from './utils';
+
+export interface IdentifiableObject {
+	id: number;
+}
 
 export interface SearchResult {
 	id: number;
@@ -23,33 +22,18 @@ export interface QueryArgs {
 	keyword: string;
 }
 
+export type QueryFilter = (query: string, args: QueryArgs) => string;
+
 export interface RenderItemComponentProps {
-	item: Suggestion;
+	item: NormalizedSuggestion;
 	onSelect: () => void;
 	searchTerm?: string;
 	isSelected?: boolean;
 	id?: string;
 	contentTypes: Array<string>;
-	renderType?: (suggestion: Suggestion) => string;
+	renderType?: (suggestion: NormalizedSuggestion) => string;
 }
 
 export type ContentSearchMode = 'post' | 'user' | 'term';
-
-export interface ContentSearchProps {
-	onSelectItem: (item: Suggestion) => void;
-	placeholder?: string;
-	label?: string;
-	hideLabelFromVision?: boolean;
-	contentTypes?: Array<string>;
-	mode?: ContentSearchMode;
-	perPage?: number;
-	queryFilter?: (query: string, args: QueryArgs) => string;
-	excludeItems?: {
-		id: number;
-	}[];
-	renderItemType?: (props: Suggestion) => string;
-	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
-	fetchInitialResults?: boolean;
-}
 
 export type Modify<T, R> = Omit<T, keyof R> & R;

@@ -1,22 +1,18 @@
 import { Spinner, NavigableMenu, Button, SearchControl } from '@wordpress/components';
-import apiFetch from '@wordpress/api-fetch';
-import { useState, useRef, useCallback } from '@wordpress/element';
-import { addQueryArgs } from '@wordpress/url';
+import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
 import {useMergeRefs} from '@wordpress/compose';
-import SearchItem, { Suggestion } from './SearchItem';
+import SearchItem from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
-import type { ContentSearchProps } from './types';
-import type { WP_REST_API_User, WP_REST_API_Post, WP_REST_API_Term } from 'wp-types';
-
+import type { ContentSearchMode, IdentifiableObject, QueryFilter, RenderItemComponentProps } from './types';
 import {
 	QueryClient,
 	QueryClientProvider,
 	useInfiniteQuery,
   } from '@tanstack/react-query';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
-import { normalizeResults } from './utils';
+import { NormalizedSuggestion, fetchSearchResults } from './utils';
 
 const queryClient = new QueryClient();
 
@@ -29,6 +25,10 @@ const List = styled.ul`
 	list-style: none !important;
 	margin: 0;
 	padding: 0 !important;
+`;
+
+const ListItem = styled.li`
+	margin-bottom: 0;
 `;
 
 const StyledSpinner = styled(Spinner)`
@@ -58,6 +58,33 @@ const StyledSearchControl = styled(SearchControl)`
 	width: 100%;
 `;
 
+const StyledNoResults = styled.li`
+	color: inherit;
+	cursor: default;
+	padding-left: 3px;
+`;
+
+const ContentSearchNoResults: React.FC = () => (
+	<StyledNoResults className="tenup-content-search-list-item components-button">
+		{__('Nothing found.', '10up-block-components')}
+	</StyledNoResults>
+);
+
+export interface ContentSearchProps {
+	onSelectItem: (item: NormalizedSuggestion) => void;
+	placeholder?: string;
+	label?: string;
+	hideLabelFromVision?: boolean;
+	contentTypes?: Array<string>;
+	mode?: ContentSearchMode;
+	perPage?: number;
+	queryFilter?: QueryFilter;
+	excludeItems?: Array<IdentifiableObject>;
+	renderItemType?: (props: NormalizedSuggestion) => string;
+	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
+	fetchInitialResults?: boolean;
+}
+
 const ContentSearch: React.FC<ContentSearchProps> = ({
 	onSelectItem = () => {
 		console.log('Select!'); // eslint-disable-line no-console
@@ -71,80 +98,18 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	queryFilter = (query: string) => query,
 	excludeItems = [],
 	renderItemType = undefined,
-	renderItem: RenderItemComponent = undefined,
+	renderItem: SearchResultItem = SearchItem,
 	fetchInitialResults,
 }) => {
 	const [searchString, setSearchString] = useState('');
-	const [selectedItem, setSelectedItem] = useState<number|null>(null);
 	const [isFocused, setIsFocused] = useState(false);
-
 	const searchContainer = useRef<HTMLDivElement>(null);
 
-
-	/**
-	 * handleSelection
-	 *
-	 * update the selected item in state to either the selected item or null if the
-	 * selected item does not have a valid id
-	 *
-	 * @param {number} item item
-	 */
-	const handleSuggestionSelection = (item: number) => {
-		if (item === 0) {
-			setSelectedItem(null);
-		}
-
-		setSelectedItem(item);
-	};
-
-	/**
-	 * handleItemSelection
-	 *
-	 * reset the search input & item container
-	 * trigger the onSelectItem callback passed in via props
-	 *
-	 * @param {Suggestion} item item
-	 */
-	const handleItemSelection = (item: Suggestion) => {
+	const handleItemSelection = (item: NormalizedSuggestion) => {
 		setSearchString('');
 		setIsFocused(false);
-
 		onSelectItem(item);
 	};
-
-	const prepareSearchQuery = useCallback(
-		(keyword: string, page: number) => {
-			let searchQuery;
-
-			switch (mode) {
-				case 'user':
-					searchQuery = addQueryArgs('wp/v2/users', {
-						search: keyword,
-					});
-					break;
-				default:
-					searchQuery = addQueryArgs('wp/v2/search', {
-						search: keyword,
-						subtype: contentTypes.join(','),
-						type: mode,
-						_embed: true,
-						per_page: perPage,
-						page,
-					});
-
-					break;
-			}
-
-			return queryFilter(searchQuery, {
-				perPage,
-				page,
-				contentTypes,
-				mode,
-				keyword,
-			});
-		},
-		[perPage, contentTypes, mode, queryFilter],
-	);
 
 	const clickOutsideRef = useOnClickOutside(() => {
 		setIsFocused(false);
@@ -170,43 +135,15 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				perPage,
 				queryFilter,
 			],
-			queryFn: async ({ pageParam = 1 }) => {
-				const searchQueryString = prepareSearchQuery(searchString, pageParam);
-				const response = await apiFetch<Response>({
-					path: searchQueryString,
-					parse: false,
-				});
-
-				const totalPages = parseInt(
-					( response.headers && response.headers.get('X-WP-TotalPages') ) || '0',
-					10,
-				);
-
-				let results: WP_REST_API_User[] | WP_REST_API_Post[] | WP_REST_API_Term[];
-
-				switch (mode) {
-					case 'user':
-					  results = await response.json() as WP_REST_API_User[];
-					  break;
-					case 'post':
-					  results = await response.json() as WP_REST_API_Post[];
-					  break;
-					case 'term':
-					  results = await response.json() as WP_REST_API_Term[];
-					  break;
-				}
-
-				const normalizedResults = normalizeResults({results, excludeItems, mode});
-
-				const hasNextPage = totalPages > pageParam;
-				const hasPreviousPage = pageParam > 1;
-
-				return {
-					results: normalizedResults,
-					nextPage: hasNextPage ? pageParam + 1 : undefined,
-					previousPage: hasPreviousPage ? pageParam - 1 : undefined,
-				};
-			},
+			queryFn: async ({ pageParam = 1 }) => fetchSearchResults({
+				keyword: searchString,
+				page: pageParam,
+				mode,
+				perPage,
+				contentTypes,
+				queryFilter,
+				excludeItems,
+			}),
 			getNextPageParam: (lastPage) => lastPage.nextPage,
 			getPreviousPageParam: (firstPage) => firstPage.previousPage,
 			initialPageParam: 1
@@ -214,13 +151,16 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	);
 
 	const searchResults = data?.pages.map((page) => page?.results).flat() || undefined;
+	console.log({searchResults});
 
 	const hasSearchString = !!searchString.length;
-	const hasSearchResults = searchResults && !!searchResults.length;
+	const hasSearchResults = status === 'success' && searchResults && !!searchResults.length;
 	const hasInitialResults = fetchInitialResults && isFocused;
+	const hasNoResults = !!error || (!isFetching && !hasSearchResults);
+	const isPending = status === 'pending';
 
 	return (
-			<StyledNavigableMenu ref={mergedRef} onNavigate={handleSuggestionSelection} orientation="vertical">
+			<StyledNavigableMenu ref={mergedRef} orientation="vertical">
 				<StyledSearchControl
 					value={searchString}
 					onChange={(newSearchString) => {
@@ -238,62 +178,23 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				{hasSearchString || hasInitialResults ? (
 					<>
 						<List className={`tenup-content-search-list`}>
-							{status === 'pending' && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
-
-							{!!error || (!isFetching && !hasSearchResults) && (
-								<li
-									className={`tenup-content-search-list-item components-button`}
-									style={{
-										color: 'inherit',
-										cursor: 'default',
-										paddingLeft: '3px',
-									}}
-								>
-									{__('Nothing found.', '10up-block-components')}
-								</li>
-							)}
-							{
-								status === 'success' &&
-								searchResults &&
-								searchResults.map((item, index) => {
-									if (!item || !item?.title?.length) {
-										return null;
-									}
-
-									const isSelected = selectedItem === index + 1;
-
+							{isPending && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+							{hasNoResults && <ContentSearchNoResults />}
+							{hasSearchResults &&
+								searchResults.map((item) => {								
 									const selectItem = () => {
 										handleItemSelection(item);
 									};
-
 									return (
-										<li
-											key={item.id}
-											className={`tenup-content-search-list-item`}
-											style={{
-												marginBottom: '0',
-											}}
-										>
-											{RenderItemComponent ? (
-												<RenderItemComponent
-													item={item}
-													onSelect={selectItem}
-													searchTerm={searchString}
-													contentTypes={contentTypes}
-													isSelected={isSelected}
-													renderType={renderItemType}
-												/>
-											) : (
-												<SearchItem
-													onClick={selectItem}
-													searchTerm={searchString}
-													suggestion={item}
-													contentTypes={contentTypes}
-													isSelected={isSelected}
-													renderType={renderItemType}
-												/>
-											)}
-										</li>
+										<ListItem key={item.id} className="tenup-content-search-list-item">
+											<SearchResultItem
+												item={item}
+												onSelect={selectItem}
+												searchTerm={searchString}
+												contentTypes={contentTypes}
+												renderType={renderItemType}
+											/>
+										</ListItem>
 									);
 								})}
 						</List>

@@ -8,6 +8,8 @@ import {
 	__experimentalTruncate as Truncate,
 } from '@wordpress/components';
 import { getTextContent, create } from '@wordpress/rich-text';
+import { RenderItemComponentProps } from './types';
+import { NormalizedSuggestion } from './utils';
 
 const ButtonStyled = styled(Button)`
 	display: flex;
@@ -50,29 +52,10 @@ const ButtonStyled = styled(Button)`
 	}
 `;
 
-export interface Suggestion {
-	id: number;
-	title: string;
-	url: string;
-	type: string;
-	subtype: string;
-}
-
-interface SearchItemProps {
-	suggestion: Suggestion;
-	onClick: () => void;
-	searchTerm?: string;
-	isSelected?: boolean;
-	id?: string;
-	contentTypes: string[];
-	renderType?: (suggestion: Suggestion) => string;
-}
-
-const SearchItem: React.FC<SearchItemProps> = ({
-	suggestion,
-	onClick,
+const SearchItem: React.FC<RenderItemComponentProps> = ({
+	item: suggestion,
+	onSelect: onClick,
 	searchTerm = '',
-	isSelected = false,
 	id = '',
 	contentTypes,
 	renderType = defaultRenderItemType,
@@ -88,9 +71,7 @@ const SearchItem: React.FC<SearchItemProps> = ({
 			<ButtonStyled
 				id={id}
 				onClick={onClick}
-				className={`block-editor-link-control__search-item is-entity ${
-					isSelected && 'is-selected'
-				}`}
+				className={`block-editor-link-control__search-item is-entity`}
 				style={{
 					borderRadius: '0',
 					boxSizing: 'border-box',
@@ -127,9 +108,17 @@ const SearchItem: React.FC<SearchItemProps> = ({
 	);
 };
 
-export function defaultRenderItemType(suggestion: Suggestion): string {
-	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localised CPT or taxonomy label.
-	return suggestion.type === 'post_tag' ? 'tag' : suggestion.subtype;
+export function defaultRenderItemType(suggestion: NormalizedSuggestion): string {
+	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localized CPT or taxonomy label.
+	if ( suggestion.type === 'post_tag' ) {
+		return 'tag';
+	}
+
+	if ( suggestion.subtype ) {
+		return suggestion.subtype;
+	}
+
+	return suggestion.type;	
 }
 
 export default SearchItem;

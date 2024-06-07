@@ -7,8 +7,8 @@ import styled from '@emotion/styled';
 import {useMergeRefs} from '@wordpress/compose';
 import SearchItem, { Suggestion } from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
-
-import type { SearchResult, ContentSearchProps } from './types';
+import type { ContentSearchProps } from './types';
+import type { WP_REST_API_User, WP_REST_API_Post, WP_REST_API_Term } from 'wp-types';
 
 import {
 	QueryClient,
@@ -16,11 +16,9 @@ import {
 	useInfiniteQuery,
   } from '@tanstack/react-query';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
-
+import { normalizeResults } from './utils';
 
 const queryClient = new QueryClient();
-
-const NAMESPACE = 'tenup-content-search';
 
 // Equalize height of list icons to match loader in order to reduce jumping.
 const listMinHeight = '46px';
@@ -60,7 +58,6 @@ const StyledSearchControl = styled(SearchControl)`
 	width: 100%;
 `;
 
-
 const ContentSearch: React.FC<ContentSearchProps> = ({
 	onSelectItem = () => {
 		console.log('Select!'); // eslint-disable-line no-console
@@ -83,20 +80,6 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 
 	const searchContainer = useRef<HTMLDivElement>(null);
 
-	const filterResults = useCallback(
-		(results: SearchResult[]) => {
-			return results.filter((result: SearchResult) => {
-				let keep = true;
-
-				if (excludeItems.length) {
-					keep = excludeItems.every((item) => item.id !== result.id);
-				}
-
-				return keep;
-			});
-		},
-		[excludeItems],
-	);
 
 	/**
 	 * handleSelection
@@ -106,7 +89,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	 *
 	 * @param {number} item item
 	 */
-	const handleOnNavigate = (item: number) => {
+	const handleSuggestionSelection = (item: number) => {
 		if (item === 0) {
 			setSelectedItem(null);
 		}
@@ -163,34 +146,6 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		[perPage, contentTypes, mode, queryFilter],
 	);
 
-	/**
-	 * Depending on the mode value, this method normalizes the format
-	 * of the result array.
-	 *
-	 * @param {string} mode ContentPicker mode.
-	 * @param {SearchResult[]} result The array to be normalized.
-	 *
-	 * @returns {SearchResult[]} The normalizes array.
-	 */
-	const normalizeResults = useCallback(
-		(result: SearchResult[] = []): SearchResult[] => {
-			const normalizedResults = filterResults(result);
-
-			if (mode === 'user') {
-				return normalizedResults.map((item) => ({
-						id: item.id,
-						subtype: mode,
-						title: item.name || '',
-						type: mode,
-						url: item.link || '',
-					} as SearchResult));
-			}
-
-			return normalizedResults;
-		},
-		[mode, filterResults],
-	);
-
 	const clickOutsideRef = useOnClickOutside(() => {
 		setIsFocused(false);
 	});
@@ -227,8 +182,21 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 					10,
 				);
 
-				const results = await response.json();
-				const normalizedResults = normalizeResults(results);
+				let results: WP_REST_API_User[] | WP_REST_API_Post[] | WP_REST_API_Term[];
+
+				switch (mode) {
+					case 'user':
+					  results = await response.json() as WP_REST_API_User[];
+					  break;
+					case 'post':
+					  results = await response.json() as WP_REST_API_Post[];
+					  break;
+					case 'term':
+					  results = await response.json() as WP_REST_API_Term[];
+					  break;
+				}
+
+				const normalizedResults = normalizeResults({results, excludeItems, mode});
 
 				const hasNextPage = totalPages > pageParam;
 				const hasPreviousPage = pageParam > 1;
@@ -252,7 +220,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	const hasInitialResults = fetchInitialResults && isFocused;
 
 	return (
-			<StyledNavigableMenu ref={mergedRef} onNavigate={handleOnNavigate} orientation="vertical">
+			<StyledNavigableMenu ref={mergedRef} onNavigate={handleSuggestionSelection} orientation="vertical">
 				<StyledSearchControl
 					value={searchString}
 					onChange={(newSearchString) => {
@@ -269,12 +237,12 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 
 				{hasSearchString || hasInitialResults ? (
 					<>
-						<List className={`${NAMESPACE}-list`}>
+						<List className={`tenup-content-search-list`}>
 							{status === 'pending' && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
 
 							{!!error || (!isFetching && !hasSearchResults) && (
 								<li
-									className={`${NAMESPACE}-list-item components-button`}
+									className={`tenup-content-search-list-item components-button`}
 									style={{
 										color: 'inherit',
 										cursor: 'default',
@@ -288,7 +256,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 								status === 'success' &&
 								searchResults &&
 								searchResults.map((item, index) => {
-									if (!item || !item.title.length) {
+									if (!item || !item?.title?.length) {
 										return null;
 									}
 
@@ -301,7 +269,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 									return (
 										<li
 											key={item.id}
-											className={`${NAMESPACE}-list-item`}
+											className={`tenup-content-search-list-item`}
 											style={{
 												marginBottom: '0',
 											}}

@@ -2,7 +2,7 @@ import { Spinner, NavigableMenu, Button, SearchControl } from '@wordpress/compon
 import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
-import {useMergeRefs} from '@wordpress/compose';
+import { useMergeRefs } from '@wordpress/compose';
 import SearchItem from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
 import type { ContentSearchMode, IdentifiableObject, QueryFilter, RenderItemComponentProps } from './types';
@@ -151,7 +151,6 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	);
 
 	const searchResults = data?.pages.map((page) => page?.results).flat() || undefined;
-	console.log({searchResults});
 
 	const hasSearchString = !!searchString.length;
 	const hasSearchResults = status === 'success' && searchResults && !!searchResults.length;

@@ -88,35 +88,26 @@ export const normalizeResults = ({ mode, results, excludeItems }: NormalizeResul
 }> => {
 	const filteredResults = filterOutExcludedItems({ results, excludeItems });
 	return filteredResults.map((item) => {
-		let title: string;
-		let url: string;
-		let type: string;
-		let subtype: string;
-
 		switch (mode) {
 			case 'user':
 				const userItem = item as WP_REST_API_User;
-				title = userItem.name;
-				url = userItem.link;
-				type = mode;
-				subtype = mode;
-				break;
+				return {
+					id: userItem.id,
+					subtype: mode,
+					title: userItem.name,
+					type: mode,
+					url: userItem.link,
+				};
 			default:
 				const searchItem = item as WP_REST_API_Search_Result;
-				title = searchItem.title;
-				url = searchItem.url;
-				type = searchItem.type;
-				subtype = searchItem.subtype;
-				break;
-		}
-
-		return {
-			id: item.id as number,
-			subtype,
-			title,
-			type,
-			url,
-		};
+				return {
+					id: searchItem.id as number,
+					subtype: searchItem.subtype,
+					title: searchItem.title,
+					type: searchItem.type,
+					url: searchItem.url,
+				};
+			}
 	});
 };
 

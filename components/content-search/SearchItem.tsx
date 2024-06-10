@@ -36,11 +36,11 @@ const SearchItemHeader = styled.span`
 	align-items: flex-start;
 `;
 
-const SearchItemTitle = styled.span<{showType: boolean}>`
+const SearchItemTitle = styled.span<{ showType: boolean }>`
 	padding-right: ${({ showType }) => (showType ? 0 : undefined)};
 `;
 
-const SearchItemInfo = styled.span<{showType: boolean}>`
+const SearchItemInfo = styled.span<{ showType: boolean }>`
 	padding-right: ${({ showType }) => (showType ? 0 : undefined)};
 `;
 
@@ -97,15 +97,15 @@ const SearchItem: React.FC<RenderItemComponentProps> = ({
 
 export function defaultRenderItemType(suggestion: NormalizedSuggestion): string {
 	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localized CPT or taxonomy label.
-	if ( suggestion.type === 'post_tag' ) {
+	if (suggestion.type === 'post_tag') {
 		return 'tag';
 	}
 
-	if ( suggestion.subtype ) {
+	if (suggestion.subtype) {
 		return suggestion.subtype;
 	}
 
-	return suggestion.type;	
+	return suggestion.type;
 }
 
 export default SearchItem;

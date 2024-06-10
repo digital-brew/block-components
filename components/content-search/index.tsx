@@ -10,7 +10,7 @@ import {
 	QueryClient,
 	QueryClientProvider,
 	useInfiniteQuery,
-  } from '@tanstack/react-query';
+} from '@tanstack/react-query';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
 import { NormalizedSuggestion, fetchSearchResults } from './utils';
 
@@ -125,7 +125,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		isFetchingNextPage,
 		fetchNextPage,
 		hasNextPage,
-	  } = useInfiniteQuery(
+	} = useInfiniteQuery(
 		{
 			queryKey: [
 				'search',
@@ -159,57 +159,57 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	const isPending = status === 'pending';
 
 	return (
-			<StyledNavigableMenu ref={mergedRef} orientation="vertical">
-				<StyledSearchControl
-					value={searchString}
-					onChange={(newSearchString) => {
-						setSearchString(newSearchString);
-					}}
-					label={label}
-					hideLabelFromVision={hideLabelFromVision}
-					placeholder={placeholder}
-					autoComplete="off"
-					onFocus={() => {
-						setIsFocused(true);
-					}}
-				/>
+		<StyledNavigableMenu ref={mergedRef} orientation="vertical">
+			<StyledSearchControl
+				value={searchString}
+				onChange={(newSearchString) => {
+					setSearchString(newSearchString);
+				}}
+				label={label}
+				hideLabelFromVision={hideLabelFromVision}
+				placeholder={placeholder}
+				autoComplete="off"
+				onFocus={() => {
+					setIsFocused(true);
+				}}
+			/>
 
-				{hasSearchString || hasInitialResults ? (
-					<>
-						<List className={`tenup-content-search-list`}>
-							{isPending && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
-							{hasNoResults && <ContentSearchNoResults />}
-							{hasSearchResults &&
-								searchResults.map((item) => {								
-									const selectItem = () => {
-										handleItemSelection(item);
-									};
-									return (
-										<ListItem key={item.id} className="tenup-content-search-list-item">
-											<SearchResultItem
-												item={item}
-												onSelect={selectItem}
-												searchTerm={searchString}
-												contentTypes={contentTypes}
-												renderType={renderItemType}
-											/>
-										</ListItem>
-									);
-								})}
-						</List>
+			{hasSearchString || hasInitialResults ? (
+				<>
+					<List className={`tenup-content-search-list`}>
+						{isPending && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+						{hasNoResults && <ContentSearchNoResults />}
+						{hasSearchResults &&
+							searchResults.map((item) => {
+								const selectItem = () => {
+									handleItemSelection(item);
+								};
+								return (
+									<ListItem key={item.id} className="tenup-content-search-list-item">
+										<SearchResultItem
+											item={item}
+											onSelect={selectItem}
+											searchTerm={searchString}
+											contentTypes={contentTypes}
+											renderType={renderItemType}
+										/>
+									</ListItem>
+								);
+							})}
+					</List>
 
-						{hasSearchResults && hasNextPage && (
-							<LoadingContainer>
-								<Button onClick={() => fetchNextPage()} variant="secondary">
-									{__('Load more', '10up-block-components')}
-								</Button>
-							</LoadingContainer>
-						)}
+					{hasSearchResults && hasNextPage && (
+						<LoadingContainer>
+							<Button onClick={() => fetchNextPage()} variant="secondary">
+								{__('Load more', '10up-block-components')}
+							</Button>
+						</LoadingContainer>
+					)}
 
-						{isFetchingNextPage && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
-					</>
-				) : null}
-			</StyledNavigableMenu>
+					{isFetchingNextPage && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+				</>
+			) : null}
+		</StyledNavigableMenu>
 	);
 };
 
@@ -223,4 +223,4 @@ const ContentSearchWrapper: React.FC<ContentSearchProps> = (props) => {
 	);
 };
 
-export { ContentSearchWrapper as ContentSearch};
+export { ContentSearchWrapper as ContentSearch };

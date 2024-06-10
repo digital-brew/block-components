@@ -1,15 +1,15 @@
-import type { ContentSearchMode, Modify, QueryFilter  } from "./types";
-import type { WP_REST_API_User, WP_REST_API_Search_Result } from "wp-types";
+import type { WP_REST_API_User, WP_REST_API_Search_Result } from 'wp-types';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import type { ContentSearchMode, Modify, QueryFilter } from './types';
 
 interface IdentifiableObject extends Object {
 	id: number;
-};
+}
 
 interface FilterResultsArgs {
-  results: WP_REST_API_User[] | WP_REST_API_Search_Result[];
-  excludeItems: Array<IdentifiableObject>;
+	results: WP_REST_API_User[] | WP_REST_API_Search_Result[];
+	excludeItems: Array<IdentifiableObject>;
 }
 
 export const filterOutExcludedItems = ({ results, excludeItems }: FilterResultsArgs) => {
@@ -25,12 +25,12 @@ export const filterOutExcludedItems = ({ results, excludeItems }: FilterResultsA
 };
 
 interface PrepareSearchQueryArgs {
-  keyword: string;
-  page: number;
-  mode: ContentSearchMode;
-  perPage: number;
-  contentTypes: Array<string>;
-  queryFilter: QueryFilter
+	keyword: string;
+	page: number;
+	mode: ContentSearchMode;
+	perPage: number;
+	contentTypes: Array<string>;
+	queryFilter: QueryFilter;
 }
 
 /**
@@ -38,7 +38,14 @@ interface PrepareSearchQueryArgs {
  *
  * @returns The prepared search query.
  */
-export const prepareSearchQuery = ({ keyword, page, mode, perPage, contentTypes, queryFilter }: PrepareSearchQueryArgs): string => {
+export const prepareSearchQuery = ({
+	keyword,
+	page,
+	mode,
+	perPage,
+	contentTypes,
+	queryFilter,
+}: PrepareSearchQueryArgs): string => {
 	let searchQuery;
 
 	switch (mode) {
@@ -70,16 +77,20 @@ export const prepareSearchQuery = ({ keyword, page, mode, perPage, contentTypes,
 };
 
 interface NormalizeResultsArgs {
-  mode: ContentSearchMode;
-  results: WP_REST_API_Search_Result[] | WP_REST_API_User[]
-  excludeItems: Array<IdentifiableObject>;
+	mode: ContentSearchMode;
+	results: WP_REST_API_Search_Result[] | WP_REST_API_User[];
+	excludeItems: Array<IdentifiableObject>;
 }
 
 /**
  * Depending on the mode value, this method normalizes the format
  * of the result array.
  */
-export const normalizeResults = ({ mode, results, excludeItems }: NormalizeResultsArgs): Array<{
+export const normalizeResults = ({
+	mode,
+	results,
+	excludeItems,
+}: NormalizeResultsArgs): Array<{
 	id: number;
 	subtype: ContentSearchMode | string;
 	title: string;
@@ -107,7 +118,7 @@ export const normalizeResults = ({ mode, results, excludeItems }: NormalizeResul
 					type: searchItem.type,
 					url: searchItem.url,
 				};
-			}
+		}
 	});
 };
 
@@ -124,15 +135,30 @@ interface FetchSearchResultsArgs {
 	excludeItems: Array<IdentifiableObject>;
 }
 
-export async function fetchSearchResults({ keyword, page, mode, perPage, contentTypes, queryFilter, excludeItems }: FetchSearchResultsArgs) {
-	const searchQueryString = prepareSearchQuery({keyword, page, mode, perPage, contentTypes, queryFilter});
+export async function fetchSearchResults({
+	keyword,
+	page,
+	mode,
+	perPage,
+	contentTypes,
+	queryFilter,
+	excludeItems,
+}: FetchSearchResultsArgs) {
+	const searchQueryString = prepareSearchQuery({
+		keyword,
+		page,
+		mode,
+		perPage,
+		contentTypes,
+		queryFilter,
+	});
 	const response = await apiFetch<Response>({
 		path: searchQueryString,
 		parse: false,
 	});
 
 	const totalPages = parseInt(
-		( response.headers && response.headers.get('X-WP-TotalPages') ) || '0',
+		(response.headers && response.headers.get('X-WP-TotalPages')) || '0',
 		10,
 	);
 
@@ -140,14 +166,14 @@ export async function fetchSearchResults({ keyword, page, mode, perPage, content
 
 	switch (mode) {
 		case 'user':
-		  results = await response.json() as WP_REST_API_User[];
-		  break;
-		 default:
-		  results = await response.json() as WP_REST_API_Search_Result[];
-		  break;
+			results = (await response.json()) as WP_REST_API_User[];
+			break;
+		default:
+			results = (await response.json()) as WP_REST_API_Search_Result[];
+			break;
 	}
 
-	const normalizedResults = normalizeResults({results, excludeItems, mode});
+	const normalizedResults = normalizeResults({ results, excludeItems, mode });
 
 	const hasNextPage = totalPages > page;
 	const hasPreviousPage = page > 1;

@@ -7,18 +7,18 @@ const ACTIVE_STATUSES = ['active', 'network-active'] as const;
 /**
  * Custom hook to check if a plugin is active and whether its resolution has finished.
  *
- * @param pluginName The name of the plugin to check.
- * @returns A tuple containing two boolean values: the first indicating whether the plugin is active, 
- * and the second indicating whether the resolution for the plugin has finished.
+ * @param {string} pluginName The name of the plugin to check.
+ * @returns {[boolean, boolean]} A tuple with the first value being whether the plugin is active and the second value being whether the resolution has finished.
  */
 export const useIsPluginActive = (pluginName: string) => {
 	return useSelect(
 		(select) => {
 			const storeSelectors = select(coreStore);
 			const plugin: Plugin = (storeSelectors as any).getPlugin(pluginName);
-			const hasResolvedPlugins: boolean = (storeSelectors as any).hasFinishedResolution('getPlugin', [
-				pluginName,
-			]);
+			const hasResolvedPlugins: boolean = (storeSelectors as any).hasFinishedResolution(
+				'getPlugin',
+				[pluginName],
+			);
 
 			const isPluginActive: boolean = ACTIVE_STATUSES.includes(plugin?.status);
 

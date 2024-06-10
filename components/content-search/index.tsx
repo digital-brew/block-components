@@ -116,8 +116,8 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	fetchInitialResults,
 }) => {
 	const [searchString, setSearchString] = useState('');
-	const [searchQueries, setSearchQueries] = useState<{[key: string]: QueryCache}>({});
-	const [selectedItem, setSelectedItem] = useState<number|null>(null);
+	const [searchQueries, setSearchQueries] = useState<{ [key: string]: QueryCache }>({});
+	const [selectedItem, setSelectedItem] = useState<number | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -219,13 +219,16 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 			const normalizedResults = filterResults(result);
 
 			if (mode === 'user') {
-				return normalizedResults.map((item) => ({
-						id: item.id,
-						subtype: mode,
-						title: item.name || '',
-						type: mode,
-						url: item.link || '',
-					} as SearchResult));
+				return normalizedResults.map(
+					(item) =>
+						({
+							id: item.id,
+							subtype: mode,
+							title: item.name || '',
+							type: mode,
+							url: item.link || '',
+						}) as SearchResult,
+				);
 			}
 
 			return normalizedResults;
@@ -255,7 +258,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		if (!searchQueries[preparedQuery] || searchQueries[preparedQuery].controller === 1) {
 			setSearchQueries((queries) => {
 				// New queries.
-				const newQueries: {[key: string]: QueryCache} = {};
+				const newQueries: { [key: string]: QueryCache } = {};
 
 				// Remove errored or cancelled queries.
 				Object.keys(queries).forEach((query) => {
@@ -314,7 +317,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				})
 					.then((results: Response) => {
 						const totalPages = parseInt(
-							( results.headers && results.headers.get('X-WP-TotalPages') ) || '0',
+							(results.headers && results.headers.get('X-WP-TotalPages')) || '0',
 							10,
 						);
 
@@ -401,7 +404,11 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 					if (i === currentPage) {
 						isLoading = false;
 
-						if ( searchQuery.totalPages && searchQuery.currentPage && searchQuery.totalPages > searchQuery.currentPage) {
+						if (
+							searchQuery.totalPages &&
+							searchQuery.currentPage &&
+							searchQuery.totalPages > searchQuery.currentPage
+						) {
 							showLoadMore = true;
 						}
 					}
@@ -424,9 +431,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 	useEffect(() => {
 		document.addEventListener('mouseup', (e: MouseEvent) => {
 			// Bail if anywhere inside search container is clicked.
-			if (
-				searchContainer.current?.contains(e.target as Node)
-			) {
+			if (searchContainer.current?.contains(e.target as Node)) {
 				return;
 			}
 
@@ -436,7 +441,11 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 
 	return (
 		<StyledComponentContext cacheKey="tenup-component-content-search">
-			<StyledNavigableMenu ref={searchContainer} onNavigate={handleOnNavigate} orientation="vertical">
+			<StyledNavigableMenu
+				ref={searchContainer}
+				onNavigate={handleOnNavigate}
+				orientation="vertical"
+			>
 				<StyledSearchControl
 					value={searchString}
 					onChange={(newSearchString) => {
@@ -454,7 +463,12 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 				{hasSearchString || hasInitialResults ? (
 					<>
 						<List className={`${NAMESPACE}-list`}>
-							{isLoading && currentPage === 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+							{isLoading && currentPage === 1 && (
+								<StyledSpinner
+									onPointerEnterCapture={null}
+									onPointerLeaveCapture={null}
+								/>
+							)}
 
 							{!isLoading && !hasSearchResults && (
 								<li
@@ -468,8 +482,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 									{__('Nothing found.', '10up-block-components')}
 								</li>
 							)}
-							{
-								(!isLoading || currentPage > 1) &&
+							{(!isLoading || currentPage > 1) &&
 								searchResults &&
 								searchResults.map((item, index) => {
 									if (!item.title.length) {
@@ -522,7 +535,12 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 							</LoadingContainer>
 						)}
 
-						{isLoading && currentPage > 1 && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+						{isLoading && currentPage > 1 && (
+							<StyledSpinner
+								onPointerEnterCapture={null}
+								onPointerLeaveCapture={null}
+							/>
+						)}
 					</>
 				) : null}
 			</StyledNavigableMenu>

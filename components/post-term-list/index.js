@@ -6,9 +6,9 @@ import {
 	PostTaxonomiesHierarchicalTermSelector,
 	PostTaxonomiesFlatTermSelector,
 } from '@wordpress/editor';
+import { Optional } from '@10up/block-components';
 
 import { usePopover, usePost, useSelectedTerms, useTaxonomy } from '../../hooks';
-import { Optional } from '..';
 import { PostTermContext } from './context';
 import { ListItem, TermLink } from './item';
 

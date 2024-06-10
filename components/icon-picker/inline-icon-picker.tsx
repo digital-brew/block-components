@@ -11,20 +11,6 @@ const StyledIconPickerDropdown = styled(IconPicker)`
 	height: 248px;
 `;
 
-export const InlineIconPicker: React.FC<IconPickerProps> = (props) => {
-	const { value, ...rest } = props;
-	const IconButton = useCallback(
-		({ onToggle }: {
-			onToggle: () => void;
-		}) => (
-			<Icon name={value?.name} iconSet={value?.iconSet} onClick={onToggle} {...rest} />
-		),
-		[value, rest],
-	);
-
-	return <IconPickerDropdown renderToggle={IconButton} {...props} />;
-};
-
 interface InlineIconPickerProps extends IconPickerProps {
 	/**
 	 * Render function for the toggle button
@@ -44,4 +30,16 @@ export const IconPickerDropdown: React.FC<InlineIconPickerProps> = (props) => {
 			renderContent={() => <StyledIconPickerDropdown {...iconPickerProps} />}
 		/>
 	);
+};
+
+export const InlineIconPicker: React.FC<IconPickerProps> = (props) => {
+	const { value, ...rest } = props;
+	const IconButton = useCallback(
+		({ onToggle }: { onToggle: () => void }) => (
+			<Icon name={value?.name} iconSet={value?.iconSet} onClick={onToggle} {...rest} />
+		),
+		[value, rest],
+	);
+
+	return <IconPickerDropdown renderToggle={IconButton} {...props} />;
 };

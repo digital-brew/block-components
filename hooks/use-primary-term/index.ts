@@ -1,10 +1,10 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as coreStore } from '@wordpress/core-data';
+import type { WP_REST_API_Taxonomy } from 'wp-types';
 import { usePost } from '../use-post';
 import { useIsPluginActive } from '../use-is-plugin-active';
 import { useIsSupportedTaxonomy } from '../use-is-supported-taxonomy';
-import { store as coreStore } from '@wordpress/core-data';
-import type { WP_REST_API_Taxonomy } from 'wp-types';
 
 export const usePrimaryTerm = (taxonomyName: string) => {
 	const { postType, isEditable } = usePost();
@@ -68,5 +68,8 @@ export const usePrimaryTerm = (taxonomyName: string) => {
 		[primaryTermId],
 	);
 
-	return [!isEditable ? { name: __('Primary Term', 'tenup') } : primaryTerm, isSupportedTaxonomy] as const;
+	return [
+		!isEditable ? { name: __('Primary Term', 'tenup') } : primaryTerm,
+		isSupportedTaxonomy,
+	] as const;
 };

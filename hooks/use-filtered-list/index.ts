@@ -12,7 +12,11 @@ const fuzzy = new uFuzzy();
  * @param {string?} property name of the prop
  * @returns {Array} filtered list
  */
-export function useFilteredList<TListItem extends {[key: string]: string}>(list: TListItem[] = [], searchTerm = '', property: keyof TListItem = 'name') {
+export function useFilteredList<TListItem extends { [key: string]: string }>(
+	list: TListItem[] = [],
+	searchTerm = '',
+	property: keyof TListItem = 'name',
+) {
 	const [filteredList, setFilteredList] = useState(list);
 
 	const propertyList = useMemo(() => list.map((item) => item[property]), [list, property]);

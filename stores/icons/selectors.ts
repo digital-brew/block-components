@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import { IconSet } from "./types";
+import { IconSet } from './types';
 
 type IconStoreState = {
 	iconSets: { [key: string]: IconSet };

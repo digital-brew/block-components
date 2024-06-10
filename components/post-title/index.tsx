@@ -4,22 +4,23 @@ import { useSelect } from '@wordpress/data';
 import { usePost } from '../../hooks';
 
 interface PostTitleProps<TElementType extends React.ElementType> {
-	tagName?: TElementType | keyof JSX.IntrinsicElements;
+	tagName: TElementType | keyof JSX.IntrinsicElements;
 }
 
-type PostTitlePropsWithOmit<TElementType extends React.ElementType> = PostTitleProps<TElementType> & Omit<React.ComponentPropsWithoutRef<TElementType>, keyof PostTitleProps<TElementType>>;
+type PostTitlePropsWithOmit<TElementType extends React.ElementType> = PostTitleProps<TElementType> &
+	Omit<React.ComponentPropsWithoutRef<TElementType>, keyof PostTitleProps<TElementType>>;
 
 export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 	tagName: TagName = 'h1',
 	...rest
-}: PostTitlePropsWithOmit<TElementType> ) => {
+}: PostTitlePropsWithOmit<TElementType>) => {
 	const { postId, postType, isEditable } = usePost();
 
 	const [rawTitle = '', setTitle, fullTitle] = useEntityProp(
 		'postType',
 		postType,
 		'title',
-		postId,
+		postId as undefined | string,
 	);
 
 	const titlePlaceholder = useSelect(

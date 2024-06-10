@@ -1,7 +1,8 @@
+/* eslint-disable no-case-declarations */
 import type { WP_REST_API_User, WP_REST_API_Search_Result } from 'wp-types';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import type { ContentSearchMode, Modify, QueryFilter } from './types';
+import type { ContentSearchMode, QueryFilter } from './types';
 
 interface IdentifiableObject extends Object {
 	id: number;
@@ -33,10 +34,8 @@ interface PrepareSearchQueryArgs {
 	queryFilter: QueryFilter;
 }
 
-/**
+/*
  * Prepares a search query based on the given keyword and page number.
- *
- * @returns The prepared search query.
  */
 export const prepareSearchQuery = ({
 	keyword,
@@ -82,7 +81,7 @@ interface NormalizeResultsArgs {
 	excludeItems: Array<IdentifiableObject>;
 }
 
-/**
+/*
  * Depending on the mode value, this method normalizes the format
  * of the result array.
  */

@@ -32,4 +32,4 @@ export const AuthorContext = createContext<Author>({
 
 export const useAuthor = () => {
 	return useContext(AuthorContext);
-}
+};

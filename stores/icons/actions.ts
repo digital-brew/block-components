@@ -1,4 +1,4 @@
-import { IconSet } from "./types";
+import { IconSet } from './types';
 
 /**
  * Returns an action object used in signalling that new block styles have been added.

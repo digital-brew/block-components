@@ -7,10 +7,14 @@ export const useSelectedTermIds = (taxonomyName: string) => {
 		(select) => {
 			const { getTaxonomy, hasFinishedResolution } = select(coreStore);
 			const taxonomyObject = getTaxonomy(taxonomyName);
-			const hasResolvedTaxonomyObject: boolean = hasFinishedResolution('getTaxonomy', [taxonomyName]);
+			const hasResolvedTaxonomyObject: boolean = hasFinishedResolution('getTaxonomy', [
+				taxonomyName,
+			]);
 			const { getEditedPostAttribute } = select(editorStore);
 
-			const selectedTermIds: Array<number> | undefined = getEditedPostAttribute(taxonomyObject?.rest_base);
+			const selectedTermIds: Array<number> | undefined = getEditedPostAttribute(
+				taxonomyObject?.rest_base,
+			);
 
 			return [selectedTermIds, hasResolvedTaxonomyObject] as const;
 		},

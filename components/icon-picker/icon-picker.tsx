@@ -16,21 +16,31 @@ import { useFilteredList } from '../../hooks/use-filtered-list';
 
 import { Icon } from './icon';
 
-const StyledIconGrid = styled(Grid)`
-	.component-icon-picker__checkbox-control {
-		margin-bottom: 0;
-	}
+/**
+ * TooltipContent
+ *
+ * The `@wordpress/components` Tooltip component tries to clone the child element
+ * passed into it. This child will get some additional children passed in. In some cases
+ * this clashes with elements that use dangerouslySetInnerHTML. This component is a
+ * workaround for that. It will just wrap the children in a div and pass that to the
+ * Tooltip component.
+ */
+const TooltipContent = forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
+	function TooltipContent(props, ref) {
+		const { children } = props;
 
-	.components-checkbox-control__input,
-	.components-checkbox-control__input-container {
-		display: none;
-	}
-`;
+		return (
+			<div ref={ref} className="component-icon-picker__tooltip-content" {...props}>
+				{children}
+			</div>
+		);
+	},
+);
 
 const StyledIconButton = styled(Icon)`
-	background-color: ${({ selected } : { selected: boolean }) => (selected ? 'black' : 'white')};
-	color: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
-	fill: ${({ selected } : { selected: boolean }) => (selected ? 'white' : 'black')};
+	background-color: ${({ selected }: { selected: boolean }) => (selected ? 'black' : 'white')};
+	color: ${({ selected }: { selected: boolean }) => (selected ? 'white' : 'black')};
+	fill: ${({ selected }: { selected: boolean }) => (selected ? 'white' : 'black')};
 	padding: 5px;
 	border: none;
 	border-radius: 4px;
@@ -52,61 +62,6 @@ const StyledIconButton = styled(Icon)`
 		object-fit: contain;
 	}
 `;
-
-export type IconPickerProps = Omit<React.ComponentProps<typeof BaseControl>, 'children'> & {
-	/**
-	 * Value of the selected icon
-	 */
-	value: { name: string; iconSet: string };
-	/**
-	 * Change handler for when a new icon is selected
-	 */
-	onChange: (icon: { name: string; iconSet: string }) => void;
-}
-
-export const IconPicker: React.FC<IconPickerProps> = (props) => {
-	const { value, onChange, label = '', ...rest } = props;
-
-	const icons = useIcons();
-
-	const instanceId = useInstanceId(IconPicker);
-	const id = `icon-picker-${instanceId}`;
-
-	const [searchTerm, setSearchTerm] = useState('');
-	const [filteredIcons] = useFilteredList(icons, searchTerm);
-
-	const hasIcons = !!filteredIcons.length;
-
-	return (
-		<BaseControl label={label} id={id} className="component-icon-picker" {...rest}>
-			<SearchControl value={searchTerm} onChange={setSearchTerm} id={id} />
-			{hasIcons ? (
-				<IconGrid icons={filteredIcons} selectedIcon={value} onChange={onChange} />
-			) : (
-				<p>{__('No icons were found...')}</p>
-			)}
-		</BaseControl>
-	);
-};
-
-/**
- * TooltipContent
- *
- * The `@wordpress/components` Tooltip component tries to clone the child element
- * passed into it. This child will get some additional children passed in. In some cases
- * this clashes with elements that use dangerouslySetInnerHTML. This component is a
- * workaround for that. It will just wrap the children in a div and pass that to the
- * Tooltip component.
- */
-const TooltipContent = forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(function TooltipContent(props, ref) {
-	const { children } = props;
-
-	return (
-		<div ref={ref} className="component-icon-picker__tooltip-content" {...props}>
-			{children}
-		</div>
-	);
-});
 
 interface IconLabelProps {
 	/**
@@ -170,7 +125,7 @@ const IconGridItem = memo<IconGridItemProps>((props) => {
 	}
 
 	// We need to cast the IconLabel to a string because types in WP are not correct
-	const label = <IconLabel isChecked={isChecked} icon={icon} /> as unknown as string;
+	const label = (<IconLabel isChecked={isChecked} icon={icon} />) as unknown as string;
 
 	return (
 		<div style={style}>
@@ -184,6 +139,17 @@ const IconGridItem = memo<IconGridItemProps>((props) => {
 		</div>
 	);
 }, areEqual);
+
+const StyledIconGrid = styled(Grid)`
+	.component-icon-picker__checkbox-control {
+		margin-bottom: 0;
+	}
+
+	.components-checkbox-control__input,
+	.components-checkbox-control__input-container {
+		display: none;
+	}
+`;
 
 interface IconGridProps {
 	/**
@@ -222,5 +188,41 @@ const IconGrid: React.FC<IconGridProps> = (props) => {
 				{IconGridItem}
 			</StyledIconGrid>
 		</NavigableMenu>
+	);
+};
+
+export type IconPickerProps = Omit<React.ComponentProps<typeof BaseControl>, 'children'> & {
+	/**
+	 * Value of the selected icon
+	 */
+	value: { name: string; iconSet: string };
+	/**
+	 * Change handler for when a new icon is selected
+	 */
+	onChange: (icon: { name: string; iconSet: string }) => void;
+};
+
+export const IconPicker: React.FC<IconPickerProps> = (props) => {
+	const { value, onChange, label = '', ...rest } = props;
+
+	const icons = useIcons();
+
+	const instanceId = useInstanceId(IconPicker);
+	const id = `icon-picker-${instanceId}`;
+
+	const [searchTerm, setSearchTerm] = useState('');
+	const [filteredIcons] = useFilteredList(icons, searchTerm);
+
+	const hasIcons = !!filteredIcons.length;
+
+	return (
+		<BaseControl label={label} id={id} className="component-icon-picker" {...rest}>
+			<SearchControl value={searchTerm} onChange={setSearchTerm} id={id} />
+			{hasIcons ? (
+				<IconGrid icons={filteredIcons} selectedIcon={value} onChange={onChange} />
+			) : (
+				<p>{__('No icons were found...')}</p>
+			)}
+		</BaseControl>
 	);
 };

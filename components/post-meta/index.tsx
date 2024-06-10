@@ -4,6 +4,59 @@ import type { ToggleControlProps } from '@wordpress/components/src/toggle-contro
 import { usePostMetaValue, useIsSupportedMetaField } from '../../hooks';
 import { toSentence } from './utilities';
 
+interface MetaStringProps {
+	/**
+	 * The meta key to use.
+	 */
+	metaKey: string;
+
+	/**
+	 * A valid HTML tag.
+	 */
+	tagName?: keyof JSX.IntrinsicElements;
+}
+
+const MetaString: React.FC<MetaStringProps> = (props) => {
+	const { metaKey, tagName = 'p' } = props;
+	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+
+	return <RichText value={metaValue} onChange={setMetaValue} tagName={tagName} {...props} />;
+};
+
+interface MetaNumberProps {
+	/**
+	 * The meta key to use.
+	 */
+	metaKey: string;
+}
+
+const MetaNumber: React.FC<MetaNumberProps> = (props) => {
+	const { metaKey } = props;
+	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+
+	return (
+		<NumberControl
+			value={metaValue}
+			onChange={(value) => setMetaValue(parseInt(value ?? '', 10))}
+			{...props}
+		/>
+	);
+};
+
+interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {
+	/**
+	 * The meta key to use.
+	 */
+	metaKey: string;
+}
+
+const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
+	const { metaKey } = props;
+	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+
+	return <ToggleControl checked={metaValue} onChange={setMetaValue} {...props} />;
+};
+
 interface PostMetaProps {
 	/**
 	 * The meta key to use.
@@ -13,7 +66,7 @@ interface PostMetaProps {
 	/**
 	 * The children render prop.
 	 */
-	children?: ((metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode);
+	children?: (metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode;
 
 	/**
 	 * Additional props to pass to the component.
@@ -50,53 +103,6 @@ export const PostMeta: React.FC<PostMetaProps> & {
 	}
 
 	return <MetaString {...props} />;
-};
-
-interface MetaStringProps {
-	/**
-	 * The meta key to use.
-	 */
-	metaKey: string;
-
-	/**
-	 * A valid HTML tag.
-	 */
-	tagName?: keyof JSX.IntrinsicElements;
-}
-
-const MetaString: React.FC<MetaStringProps> = (props) => {
-	const { metaKey, tagName = 'p' } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
-
-	return <RichText value={metaValue} onChange={setMetaValue} tagName={tagName} {...props} />;
-};
-
-interface MetaNumberProps {
-	/**
-	 * The meta key to use.
-	 */
-	metaKey: string;
-}
-
-const MetaNumber: React.FC<MetaNumberProps> = (props) => {
-	const { metaKey } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
-
-	return <NumberControl value={metaValue} onChange={value => setMetaValue(parseInt(value ?? ''))} {...props} />;
-};
-
-interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {
-	/**
-	 * The meta key to use.
-	 */
-	metaKey: string;
-}
-
-const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
-	const { metaKey } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
-
-	return <ToggleControl checked={metaValue} onChange={setMetaValue} {...props} />;
 };
 
 PostMeta.String = MetaString;

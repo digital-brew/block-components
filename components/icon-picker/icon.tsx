@@ -17,26 +17,33 @@ interface IconProps {
 	onClick?: () => void;
 }
 
-export const Icon: React.FC<IconProps> = forwardRef<HTMLDivElement, IconProps>(function Icon(props, ref) {
-	const { name, iconSet, onClick, ...rest } = props;
-	const icon = useIcon(iconSet, name);
+export const Icon: React.FC<IconProps> = forwardRef<HTMLDivElement, IconProps>(
+	function Icon(props, ref) {
+		const { name, iconSet, onClick, ...rest } = props;
+		const icon = useIcon(iconSet, name);
 
-	if (!icon || Array.isArray(icon)) {
-		// @ts-ignore -- Types on WP seem to require onPointerEnterCapture and onPointerLeaveCapture
-		return <Spinner />;
-	}
+		if (!icon || Array.isArray(icon)) {
+			// @ts-ignore -- Types on WP seem to require onPointerEnterCapture and onPointerLeaveCapture
+			return <Spinner />;
+		}
 
-	// only add interactive props to component if a onClick handler was provided
-	const iconProps: React.JSX.IntrinsicElements['div'] = {};
-	if (typeof onClick === 'function') {
-		iconProps.role = 'button';
-		iconProps.tabIndex = 0;
-		iconProps['aria-label'] = 'Change Icon';
-		iconProps.onClick = onClick;
-	}
+		// only add interactive props to component if a onClick handler was provided
+		const iconProps: React.JSX.IntrinsicElements['div'] = {};
+		if (typeof onClick === 'function') {
+			iconProps.role = 'button';
+			iconProps.tabIndex = 0;
+			iconProps['aria-label'] = 'Change Icon';
+			iconProps.onClick = onClick;
+		}
 
-	return (
-		// eslint-disable-next-line react/no-danger
-		<div {...iconProps} dangerouslySetInnerHTML={{ __html: icon.source }} {...rest} ref={ref} />
-	);
-});
+		return (
+			<div
+				{...iconProps}
+				// eslint-disable-next-line react/no-danger
+				dangerouslySetInnerHTML={{ __html: icon.source }}
+				{...rest}
+				ref={ref}
+			/>
+		);
+	},
+);

@@ -12,17 +12,14 @@ interface IsAdminProps {
 	children: React.ReactNode;
 }
 
-/**
+/*
  * IsAdmin
  *
  * A wrapper component that checks wether the current user has admin capabilities
  * and only returns the child components if the user is an admin. You can pass a
  * fallback component via the fallback prop.
  */
-export const IsAdmin: React.FC<IsAdminProps> = ({
-	fallback = null,
-	children,
-}) => {
+export const IsAdmin: React.FC<IsAdminProps> = ({ fallback = null, children }) => {
 	const hasAdminPermissions: boolean = useSelect(
 		(select) => select('core').canUser('read', 'users?roles=1'),
 		[],

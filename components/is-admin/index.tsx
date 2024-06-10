@@ -12,7 +12,7 @@ interface IsAdminProps {
 	children: React.ReactNode;
 }
 
-/**
+/*
  * IsAdmin
  *
  * A wrapper component that checks wether the current user has admin capabilities

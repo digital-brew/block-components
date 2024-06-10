@@ -26,7 +26,7 @@ interface MediaToolbarProps {
 	id: number;
 }
 
-/**
+/*
  * MediaToolbar
  *
  * This is a helper component that adds the Media Replace Flow

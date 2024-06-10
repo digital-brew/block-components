@@ -12,7 +12,7 @@ export function useOnClickOutside(onClickOutside: (event: MouseEvent | TouchEven
 	const ref = useRefEffect(
 		(element) => {
 			if (!element) {
-				return;
+				return () => {};
 			}
 			const listener = (event: MouseEvent | TouchEvent) => {
 				// Do nothing if clicking ref's element or descendent elements
@@ -25,7 +25,8 @@ export function useOnClickOutside(onClickOutside: (event: MouseEvent | TouchEven
 			const ownerDocument = element.ownerDocument || document;
 			const isRenderedInsideIframe = ownerDocument !== document;
 
-			const editorCanvasIframe = document.querySelector<HTMLIFrameElement>('[name="editor-canvas"]');
+			const editorCanvasIframe =
+				document.querySelector<HTMLIFrameElement>('[name="editor-canvas"]');
 			const editorCanvasDocument = editorCanvasIframe?.contentDocument;
 
 			ownerDocument.addEventListener('mousedown', listener);
@@ -37,8 +38,8 @@ export function useOnClickOutside(onClickOutside: (event: MouseEvent | TouchEven
 				document.addEventListener('mousedown', listener);
 				document.addEventListener('touchstart', listener);
 
-			// If the element is rendered outside the editor canvas iframe, we need to listen to events on the editor canvas
-			// document as well to detect clicks inside the editor canvas.
+				// If the element is rendered outside the editor canvas iframe, we need to listen to events on the editor canvas
+				// document as well to detect clicks inside the editor canvas.
 			} else if (editorCanvasDocument) {
 				editorCanvasDocument.addEventListener('mousedown', listener);
 				editorCanvasDocument.addEventListener('touchstart', listener);

@@ -1,7 +1,7 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as blockEditorStore, useBlockEditContext } from '@wordpress/block-editor';
 
-/**
+/*
  * useBlockParentAttributes
  *
  * allows you to easily interface with the attributes of the direct

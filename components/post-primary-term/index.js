@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { usePrimaryTerm } from '../../hooks';
 
 export const PostPrimaryTerm = (props) => {
@@ -32,16 +31,4 @@ export const PostPrimaryTerm = (props) => {
 	}
 
 	return <Tag {...wrapperProps}>{termString}</Tag>;
-};
-
-PostPrimaryTerm.propTypes = {
-	placeholder: PropTypes.string,
-	taxonomyName: PropTypes.string,
-	isLink: PropTypes.bool,
-};
-
-PostPrimaryTerm.defaultProps = {
-	placeholder: __('Select a Term', 'tenup'),
-	isLink: true,
-	taxonomyName: 'category',
 };

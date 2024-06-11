@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -51,7 +50,7 @@ function getType(mode) {
  * @param {number|string} props.id id of the item
  * @returns {*} React JSX
  */
-const PickedItem = ({ item, isOrderable, handleItemDelete, mode, id }) => {
+const PickedItem = ({ item, isOrderable = false, handleItemDelete, mode, id }) => {
 	const type = getType(mode);
 
 	const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
@@ -138,18 +137,6 @@ const PickedItem = ({ item, isOrderable, handleItemDelete, mode, id }) => {
 			</StyledCloseButton>
 		</li>
 	);
-};
-
-PickedItem.defaultProps = {
-	isOrderable: false,
-};
-
-PickedItem.propTypes = {
-	item: PropTypes.object.isRequired,
-	isOrderable: PropTypes.bool,
-	handleItemDelete: PropTypes.func.isRequired,
-	mode: PropTypes.string.isRequired,
-	id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
 };
 
 export default PickedItem;

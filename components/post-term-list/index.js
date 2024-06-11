@@ -1,7 +1,6 @@
 import { Spinner } from '@wordpress/components';
 import { Children } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import {
 	PostTaxonomiesHierarchicalTermSelector,
 	PostTaxonomiesFlatTermSelector,
@@ -15,8 +14,8 @@ import { ListItem, TermLink } from './item';
 export const PostTermList = (props) => {
 	const {
 		tagName: TagName = 'ul',
-		taxonomyName,
-		children,
+		taxonomyName = 'category',
+		children = null,
 		noResultsMessage = __('Please select a term', 'tenup'),
 		...rest
 	} = props;
@@ -107,20 +106,6 @@ export const PostTermList = (props) => {
 			)}
 		</>
 	);
-};
-
-PostTermList.propTypes = {
-	children: PropTypes.oneOfType([PropTypes.node, PropTypes.func]),
-	taxonomyName: PropTypes.string,
-	tagName: PropTypes.string,
-	noResultsMessage: PropTypes.string,
-};
-
-PostTermList.defaultProps = {
-	children: null,
-	tagName: 'ul',
-	taxonomyName: 'category',
-	noResultsMessage: __('Please select a term', 'tenup'),
 };
 
 PostTermList.ListItem = ListItem;

@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { select } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -43,7 +42,7 @@ const ContentPickerWrapper = styled.div`
  * @param {Array} props.contentTypes array of content types to filter by
  * @param {string} props.placeholder placeholder text for the search input
  * @param {Function} props.onPickChange callback for when the picker changes
- * @param {Function} props.queryFilter callback that allows to modify the query
+ * @param {?Function} props.queryFilter callback that allows to modify the query
  * @param {number} props.maxContentItems max number of items to show in the picker
  * @param {boolean} props.isOrderable whether or not the picker is sortable
  * @param {string} props.singlePickedLabel label for the single picked item
@@ -54,28 +53,30 @@ const ContentPickerWrapper = styled.div`
  * @param {number} props.perPage number of items to show per page
  * @param {boolean} props.fetchInitialResults whether or not to fetch initial results on mount
  * @param {Function} props.renderItemType callback to render the item type
- * @param {Function} props.renderItem react component to render the search result item
+ * @param {?Function} props.renderItem react component to render the search result item
  * @returns {*} React JSX
  */
-const ContentPicker = ({
-	label,
-	hideLabelFromVision,
-	mode,
-	contentTypes,
-	placeholder,
-	onPickChange,
-	queryFilter,
-	maxContentItems,
-	isOrderable,
-	singlePickedLabel,
-	multiPickedLabel,
-	content,
-	uniqueContentItems,
-	excludeCurrentPost,
-	perPage,
-	fetchInitialResults,
-	renderItemType,
-	renderItem,
+export const ContentPicker = ({
+	label = '',
+	hideLabelFromVision = true,
+	mode = 'post',
+	contentTypes = ['post', 'page'],
+	placeholder = '',
+	onPickChange = (ids) => {
+		console.log('Content picker list change', ids); // eslint-disable-line no-console
+	},
+	queryFilter = null,
+	maxContentItems = 1,
+	isOrderable = false,
+	singlePickedLabel = __('You have selected the following item:', '10up-block-components'),
+	multiPickedLabel = __('You have selected the following items:', '10up-block-components'),
+	content = [],
+	uniqueContentItems = true,
+	excludeCurrentPost = true,
+	perPage = 20,
+	fetchInitialResults = false,
+	renderItemType = defaultRenderItemType,
+	renderItem = null,
 }) => {
 	const currentPostId = select('core/editor')?.getCurrentPostId();
 
@@ -187,49 +188,3 @@ const ContentPicker = ({
 		</StyledComponentContext>
 	);
 };
-
-ContentPicker.defaultProps = {
-	label: '',
-	hideLabelFromVision: true,
-	mode: 'post',
-	onPickChange: (ids) => {
-		console.log('Content picker list change', ids); // eslint-disable-line no-console
-	},
-	queryFilter: undefined,
-	contentTypes: ['post', 'page'],
-	placeholder: '',
-	content: [],
-	perPage: 20,
-	maxContentItems: 1,
-	uniqueContentItems: true,
-	isOrderable: false,
-	excludeCurrentPost: true,
-	multiPickedLabel: __('You have selected the following items:', '10up-block-components'),
-	singlePickedLabel: __('You have selected the following item:', '10up-block-components'),
-	fetchInitialResults: false,
-	renderItemType: defaultRenderItemType,
-	renderItem: undefined,
-};
-
-ContentPicker.propTypes = {
-	contentTypes: PropTypes.array,
-	content: PropTypes.array,
-	placeholder: PropTypes.string,
-	mode: PropTypes.oneOf(['post', 'user', 'term']),
-	label: PropTypes.string,
-	hideLabelFromVision: PropTypes.bool,
-	multiPickedLabel: PropTypes.string,
-	singlePickedLabel: PropTypes.string,
-	isOrderable: PropTypes.bool,
-	onPickChange: PropTypes.func,
-	queryFilter: PropTypes.func,
-	uniqueContentItems: PropTypes.bool,
-	excludeCurrentPost: PropTypes.bool,
-	maxContentItems: PropTypes.number,
-	perPage: PropTypes.number,
-	fetchInitialResults: PropTypes.bool,
-	renderItemType: PropTypes.func,
-	renderItem: PropTypes.func,
-};
-
-export { ContentPicker };

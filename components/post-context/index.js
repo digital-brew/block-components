@@ -1,9 +1,8 @@
-import PropTypes from 'prop-types';
 import { useMemo } from '@wordpress/element';
-import { DEFAULT_POST_CONTEXT, PostContext as PostContextContext } from './context';
+import { PostContext as PostContextContext } from './context';
 
 export const PostContext = (props) => {
-	const { children, postId, postType, isEditable } = props;
+	const { children, postId = null, postType = null, isEditable = null } = props;
 
 	const value = useMemo(
 		() => ({
@@ -16,12 +15,3 @@ export const PostContext = (props) => {
 
 	return <PostContextContext.Provider value={value}>{children}</PostContextContext.Provider>;
 };
-
-PostContext.propTypes = {
-	children: PropTypes.node.isRequired,
-	postId: PropTypes.number,
-	postType: PropTypes.string,
-	isEditable: PropTypes.bool,
-};
-
-PostContext.defaultProps = DEFAULT_POST_CONTEXT;

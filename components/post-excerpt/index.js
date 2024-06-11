@@ -1,7 +1,6 @@
 import { useEntityProp } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
-import PropTypes from 'prop-types';
 import { usePost } from '../../hooks';
 
 export const PostExcerpt = (props) => {
@@ -30,12 +29,4 @@ export const PostExcerpt = (props) => {
 			{...rest}
 		/>
 	);
-};
-
-PostExcerpt.propTypes = {
-	placeholder: PropTypes.string,
-};
-
-PostExcerpt.defaultProps = {
-	placeholder: __('Enter excerpt...', 'tenup'),
 };

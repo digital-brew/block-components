@@ -1,12 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-
-/**
- * WordPress dependencies
- */
 import { Inserter } from '@wordpress/block-editor';
 import { Button } from '@wordpress/components';
 
@@ -25,8 +16,8 @@ import { Button } from '@wordpress/components';
  */
 const CustomBlockAppender = ({
 	rootClientId,
-	buttonText,
-	icon,
+	buttonText = '',
+	icon = 'plus',
 	className = 'custom-block-appender',
 	...buttonProps
 }) => {
@@ -47,21 +38,6 @@ const CustomBlockAppender = ({
 			)}
 		/>
 	);
-};
-
-CustomBlockAppender.propTypes = {
-	rootClientId: PropTypes.string.isRequired,
-	buttonText: PropTypes.string,
-	label: PropTypes.string,
-	icon: PropTypes.string,
-	className: PropTypes.string,
-};
-
-CustomBlockAppender.defaultProps = {
-	buttonText: '',
-	label: '',
-	icon: 'plus',
-	className: 'custom-block-appender',
 };
 
 export { CustomBlockAppender };

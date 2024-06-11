@@ -76,5 +76,11 @@
     "classnames": "^2.5.1",
     "cypress": "^13.8.1",
     "cypress-localstorage-commands": "^2.2.5"
+  },
+  "overrides": {
+	"react-autosize-textarea": {
+		"react-dom": "^18.0.0",
+		"react": "^18.0.0"
+	}
   }
 }

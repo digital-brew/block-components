@@ -3,14 +3,15 @@ import { useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
 import { useMergeRefs } from '@wordpress/compose';
+import { QueryClient, QueryClientProvider, useInfiniteQuery } from '@tanstack/react-query';
 import SearchItem from './SearchItem';
 import { StyledComponentContext } from '../styled-components-context';
-import type { ContentSearchMode, IdentifiableObject, QueryFilter, RenderItemComponentProps } from './types';
-import {
-	QueryClient,
-	QueryClientProvider,
-	useInfiniteQuery,
-} from '@tanstack/react-query';
+import type {
+	ContentSearchMode,
+	IdentifiableObject,
+	QueryFilter,
+	RenderItemComponentProps,
+} from './types';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
 import { NormalizedSuggestion, fetchSearchResults } from './utils';
 
@@ -117,38 +118,23 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 
 	const mergedRef = useMergeRefs([searchContainer, clickOutsideRef]);
 
-	const {
-		status,
-		data,
-		error,
-		isFetching,
-		isFetchingNextPage,
-		fetchNextPage,
-		hasNextPage,
-	} = useInfiniteQuery(
-		{
-			queryKey: [
-				'search',
-				searchString,
-				contentTypes.join(','),
-				mode,
-				perPage,
-				queryFilter,
-			],
-			queryFn: async ({ pageParam = 1 }) => fetchSearchResults({
-				keyword: searchString,
-				page: pageParam,
-				mode,
-				perPage,
-				contentTypes,
-				queryFilter,
-				excludeItems,
-			}),
+	const { status, data, error, isFetching, isFetchingNextPage, fetchNextPage, hasNextPage } =
+		useInfiniteQuery({
+			queryKey: ['search', searchString, contentTypes.join(','), mode, perPage, queryFilter],
+			queryFn: async ({ pageParam = 1 }) =>
+				fetchSearchResults({
+					keyword: searchString,
+					page: pageParam,
+					mode,
+					perPage,
+					contentTypes,
+					queryFilter,
+					excludeItems,
+				}),
 			getNextPageParam: (lastPage) => lastPage.nextPage,
 			getPreviousPageParam: (firstPage) => firstPage.previousPage,
-			initialPageParam: 1
-		}
-	);
+			initialPageParam: 1,
+		});
 
 	const searchResults = data?.pages.map((page) => page?.results).flat() || undefined;
 
@@ -162,7 +148,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 		<StyledNavigableMenu ref={mergedRef} orientation="vertical">
 			<StyledSearchControl
 				value={searchString}
-				onChange={(newSearchString) => {
+				onChange={(newSearchString: string) => {
 					setSearchString(newSearchString);
 				}}
 				label={label}
@@ -176,8 +162,8 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 
 			{hasSearchString || hasInitialResults ? (
 				<>
-					<List className={`tenup-content-search-list`}>
-						{isPending && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+					<List className="tenup-content-search-list">
+						{isPending && <StyledSpinner />}
 						{hasNoResults && <ContentSearchNoResults />}
 						{hasSearchResults &&
 							searchResults.map((item) => {
@@ -185,7 +171,10 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 									handleItemSelection(item);
 								};
 								return (
-									<ListItem key={item.id} className="tenup-content-search-list-item">
+									<ListItem
+										key={item.id}
+										className="tenup-content-search-list-item"
+									>
 										<SearchResultItem
 											item={item}
 											onSelect={selectItem}
@@ -206,7 +195,7 @@ const ContentSearch: React.FC<ContentSearchProps> = ({
 						</LoadingContainer>
 					)}
 
-					{isFetchingNextPage && <StyledSpinner onPointerEnterCapture={null} onPointerLeaveCapture={null} />}
+					{isFetchingNextPage && <StyledSpinner />}
 				</>
 			) : null}
 		</StyledNavigableMenu>

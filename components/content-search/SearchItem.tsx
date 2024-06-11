@@ -58,6 +58,19 @@ const StyledTextHighlight = styled(TextHighlight)`
 	padding: 0 !important;
 `;
 
+export function defaultRenderItemType(suggestion: NormalizedSuggestion): string {
+	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localized CPT or taxonomy label.
+	if (suggestion.type === 'post_tag') {
+		return 'tag';
+	}
+
+	if (suggestion.subtype) {
+		return suggestion.subtype;
+	}
+
+	return suggestion.type;
+}
+
 const SearchItem: React.FC<RenderItemComponentProps> = ({
 	item: suggestion,
 	onSelect: onClick,
@@ -85,27 +98,10 @@ const SearchItem: React.FC<RenderItemComponentProps> = ({
 						</Truncate>
 					</SearchItemInfo>
 				</SearchItemHeader>
-				{showType && (
-					<SearchItemType>
-						{renderType(suggestion)}
-					</SearchItemType>
-				)}
+				{showType && <SearchItemType>{renderType(suggestion)}</SearchItemType>}
 			</SearchItemWrapper>
 		</Tooltip>
 	);
 };
-
-export function defaultRenderItemType(suggestion: NormalizedSuggestion): string {
-	// Rename 'post_tag' to 'tag'. Ideally, the API would return the localized CPT or taxonomy label.
-	if (suggestion.type === 'post_tag') {
-		return 'tag';
-	}
-
-	if (suggestion.subtype) {
-		return suggestion.subtype;
-	}
-
-	return suggestion.type;
-}
 
 export default SearchItem;

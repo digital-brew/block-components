@@ -3,7 +3,6 @@
  */
 import classnames from 'classnames';
 import styled from '@emotion/styled';
-import PropTypes from 'prop-types';
 
 /**
  * WordPress dependencies
@@ -105,17 +104,17 @@ const StylesRichTextLink = styled(RichText)`
  *
  * @returns {*} The rendered component.
  */
-const Link = ({
-	value,
-	type,
+export const Link = ({
+	value = undefined,
+	type = '',
 	opensInNewTab,
-	url,
+	url = undefined,
 	onLinkChange,
 	onTextChange,
-	onLinkRemove,
-	kind,
-	placeholder,
-	className,
+	onLinkRemove = null,
+	kind = '',
+	placeholder = __('Link text ...', '10up-block-components'),
+	className = undefined,
 	...rest
 }) => {
 	const [isPopoverVisible, setIsPopoverVisible] = useState(false);
@@ -201,28 +200,3 @@ const Link = ({
 		</StyledComponentContext>
 	);
 };
-
-Link.defaultProps = {
-	value: undefined,
-	url: undefined,
-	className: undefined,
-	onLinkRemove: null,
-	type: '',
-	kind: '',
-	placeholder: __('Link text ...', '10up-block-components'),
-};
-
-Link.propTypes = {
-	value: PropTypes.string,
-	url: PropTypes.string,
-	onLinkChange: PropTypes.func.isRequired,
-	onLinkRemove: PropTypes.func,
-	onTextChange: PropTypes.func.isRequired,
-	opensInNewTab: PropTypes.bool.isRequired,
-	type: PropTypes.string,
-	kind: PropTypes.string,
-	className: PropTypes.string,
-	placeholder: PropTypes.string,
-};
-
-export { Link };

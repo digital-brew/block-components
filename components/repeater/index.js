@@ -4,7 +4,6 @@ import { useSelect, dispatch } from '@wordpress/data';
 import { cloneElement } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -37,7 +36,7 @@ import { DragHandle } from '../drag-handle';
  * @param {string} props.id A string identifier for a repeater item.
  * @returns {*} React JSX
  */
-const SortableItem = ({ children, item, setItem, removeItem, id }) => {
+const SortableItem = ({ children, item = {}, setItem = null, removeItem = null, id = '' }) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id,
 	});
@@ -83,11 +82,11 @@ const SortableItem = ({ children, item, setItem, removeItem, id }) => {
  */
 export const AbstractRepeater = ({
 	children,
-	addButton,
-	allowReordering,
+	addButton = null,
+	allowReordering = false,
 	onChange,
 	value,
-	defaultValue,
+	defaultValue = [],
 }) => {
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -219,7 +218,12 @@ export const AbstractRepeater = ({
 	);
 };
 
-export const AttributeRepeater = ({ children, attribute, addButton, allowReordering }) => {
+export const AttributeRepeater = ({
+	children,
+	attribute = null,
+	addButton = null,
+	allowReordering = false,
+}) => {
 	const { clientId, name } = useBlockEditContext();
 	const { updateBlockAttributes } = dispatch(blockEditorStore);
 
@@ -258,12 +262,12 @@ export const AttributeRepeater = ({ children, attribute, addButton, allowReorder
 
 export const Repeater = ({
 	children,
-	addButton,
-	allowReordering,
+	addButton = null,
+	allowReordering = false,
 	onChange,
 	value,
-	defaultValue,
-	attribute,
+	defaultValue = [],
+	attribute = null,
 }) => {
 	if (attribute) {
 		return (
@@ -288,68 +292,4 @@ export const Repeater = ({
 			{children}
 		</AbstractRepeater>
 	);
-};
-
-Repeater.propTypes = {
-	children: PropTypes.func.isRequired,
-	addButton: PropTypes.func,
-	attribute: PropTypes.string,
-	allowReordering: PropTypes.bool,
-	onChange: PropTypes.func.isRequired,
-	value: PropTypes.array.isRequired,
-	defaultValue: PropTypes.array,
-};
-
-Repeater.defaultProps = {
-	attribute: null,
-	addButton: null,
-	allowReordering: false,
-	defaultValue: [],
-};
-
-AttributeRepeater.propTypes = {
-	children: PropTypes.func.isRequired,
-	attribute: PropTypes.string,
-	addButton: PropTypes.func,
-	allowReordering: PropTypes.bool,
-};
-
-AttributeRepeater.defaultProps = {
-	attribute: null,
-	addButton: null,
-	allowReordering: false,
-};
-
-AbstractRepeater.propTypes = {
-	children: PropTypes.func.isRequired,
-	addButton: PropTypes.func,
-	allowReordering: PropTypes.bool,
-	onChange: PropTypes.func.isRequired,
-	value: PropTypes.array.isRequired,
-	defaultValue: PropTypes.array,
-};
-
-AbstractRepeater.defaultProps = {
-	addButton: null,
-	allowReordering: false,
-	defaultValue: [],
-};
-
-SortableItem.defaultProps = {
-	attribute: 'items',
-	addItem: null,
-	setItem: null,
-	removeItem: null,
-	item: {},
-	id: '',
-};
-
-SortableItem.propTypes = {
-	children: PropTypes.func.isRequired,
-	attribute: PropTypes.string,
-	addItem: PropTypes.func,
-	setItem: PropTypes.func,
-	removeItem: PropTypes.func,
-	item: PropTypes.object,
-	id: PropTypes.string,
 };

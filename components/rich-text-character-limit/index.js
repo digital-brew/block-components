@@ -2,7 +2,6 @@ import { useState, useEffect } from '@wordpress/element';
 import { RichText, useBlockEditContext } from '@wordpress/block-editor';
 import { create, remove, getTextContent, toHTMLString } from '@wordpress/rich-text';
 import { useFloating, autoUpdate } from '@floating-ui/react-dom';
-import PropTypes from 'prop-types';
 import { Counter } from '../counter';
 
 /**
@@ -118,15 +117,3 @@ const RichTextCharacterLimit = (props) => {
 };
 
 export { RichTextCharacterLimit, getCharacterCount };
-
-RichTextCharacterLimit.defaultProps = {
-	limit: 100,
-	enforce: true,
-};
-
-RichTextCharacterLimit.propTypes = {
-	limit: PropTypes.number,
-	enforce: PropTypes.bool,
-	value: PropTypes.string.isRequired,
-	onChange: PropTypes.func.isRequired,
-};

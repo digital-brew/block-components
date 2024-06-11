@@ -38,10 +38,10 @@ interface ButtonLabels {
 }
 
 export const ClipboardButton: React.FC<ClipboardButtonProps> = ({
-	text,
-	disabled,
-	onSuccess,
-	labels,
+	text = '',
+	disabled = false,
+	onSuccess = () => {},
+	labels = {},
 }) => {
 	const [hasCopied, setHasCopied] = useState(false);
 	const copy = labels.copy ? labels.copy : __('Copy');
@@ -83,11 +83,4 @@ export const ClipboardButton: React.FC<ClipboardButtonProps> = ({
 			{hasCopied ? copied : copy}
 		</Button>
 	);
-};
-
-ClipboardButton.defaultProps = {
-	text: '',
-	disabled: false,
-	onSuccess: () => {},
-	labels: {},
 };

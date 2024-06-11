@@ -20,7 +20,6 @@ export const usePopover = () => {
 	const ref = useOnClickOutside(() => setIsVisible(false));
 	const PopoverComponent = useMemo(
 		() =>
-			// eslint-disable-next-line react/prop-types
 			({ children }) => {
 				if (!isVisible) {
 					return null;

@@ -26,41 +26,47 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { DragHandle } from '../drag-handle';
 
-export const AttributeRepeater = ({ children, attribute, addButton, allowReordering }) => {
-	const { clientId, name } = useBlockEditContext();
-	const { updateBlockAttributes } = dispatch(blockEditorStore);
-
-	const attributeValue = useSelect((select) => {
-		const attributes = select(blockEditorStore).getBlockAttributes(clientId);
-		return attributes[attribute] || [];
+/**
+ * The Sortable Item Component.
+ *
+ * @param {object} props React props
+ * @param {Function} props.children Render prop to render the children.
+ * @param {object} props.item The repeater item object.
+ * @param {Function} props.setItem A function to set state of a repeater item.
+ * @param {Function} props.removeItem A function to delete a repeater item.
+ * @param {string} props.id A string identifier for a repeater item.
+ * @returns {*} React JSX
+ */
+const SortableItem = ({ children, item, setItem, removeItem, id }) => {
+	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+		id,
 	});
 
-	const { defaultRepeaterData } = useSelect((select) => {
-		return {
-			defaultRepeaterData:
-				select(blocksStore).getBlockType(name).attributes[attribute].default,
-		};
-	});
-
-	if (defaultRepeaterData.length) {
-		defaultRepeaterData[0].id = uuid();
-	}
-
-	const handleOnChange = (value) => {
-		updateBlockAttributes(clientId, { [attribute]: value });
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		display: 'flex',
+		zIndex: isDragging ? 999 : 1,
+		position: 'relative',
 	};
 
-	return (
-		<AbstractRepeater
-			addButton={addButton}
-			allowReordering={allowReordering}
-			onChange={handleOnChange}
-			value={attributeValue}
-			defaultValue={defaultRepeaterData}
-		>
-			{children}
-		</AbstractRepeater>
+	const repeaterItem = children(item, id, setItem, removeItem);
+	const clonedRepeaterChild = cloneElement(
+		repeaterItem,
+		{
+			ref: setNodeRef,
+			style,
+			className: isDragging
+				? `${repeaterItem.props.className} repeater-item--is-dragging`
+				: repeaterItem.props.className,
+		},
+		[
+			<DragHandle className="repeater-item__drag-handle" {...attributes} {...listeners} />,
+			repeaterItem.props.children,
+		],
 	);
+
+	return clonedRepeaterChild;
 };
 
 /**
@@ -213,6 +219,43 @@ export const AbstractRepeater = ({
 	);
 };
 
+export const AttributeRepeater = ({ children, attribute, addButton, allowReordering }) => {
+	const { clientId, name } = useBlockEditContext();
+	const { updateBlockAttributes } = dispatch(blockEditorStore);
+
+	const attributeValue = useSelect((select) => {
+		const attributes = select(blockEditorStore).getBlockAttributes(clientId);
+		return attributes[attribute] || [];
+	});
+
+	const { defaultRepeaterData } = useSelect((select) => {
+		return {
+			defaultRepeaterData:
+				select(blocksStore).getBlockType(name).attributes[attribute].default,
+		};
+	});
+
+	if (defaultRepeaterData.length) {
+		defaultRepeaterData[0].id = uuid();
+	}
+
+	const handleOnChange = (value) => {
+		updateBlockAttributes(clientId, { [attribute]: value });
+	};
+
+	return (
+		<AbstractRepeater
+			addButton={addButton}
+			allowReordering={allowReordering}
+			onChange={handleOnChange}
+			value={attributeValue}
+			defaultValue={defaultRepeaterData}
+		>
+			{children}
+		</AbstractRepeater>
+	);
+};
+
 export const Repeater = ({
 	children,
 	addButton,
@@ -245,49 +288,6 @@ export const Repeater = ({
 			{children}
 		</AbstractRepeater>
 	);
-};
-
-/**
- * The Sortable Item Component.
- *
- * @param {object} props React props
- * @param {Function} props.children Render prop to render the children.
- * @param {object} props.item The repeater item object.
- * @param {Function} props.setItem A function to set state of a repeater item.
- * @param {Function} props.removeItem A function to delete a repeater item.
- * @param {string} props.id A string identifier for a repeater item.
- * @returns {*} React JSX
- */
-const SortableItem = ({ children, item, setItem, removeItem, id }) => {
-	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-		id,
-	});
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-		display: 'flex',
-		zIndex: isDragging ? 999 : 1,
-		position: 'relative',
-	};
-
-	const repeaterItem = children(item, id, setItem, removeItem);
-	const clonedRepeaterChild = cloneElement(
-		repeaterItem,
-		{
-			ref: setNodeRef,
-			style,
-			className: isDragging
-				? `${repeaterItem.props.className} repeater-item--is-dragging`
-				: repeaterItem.props.className,
-		},
-		[
-			<DragHandle className="repeater-item__drag-handle" {...attributes} {...listeners} />,
-			repeaterItem.props.children,
-		],
-	);
-
-	return clonedRepeaterChild;
 };
 
 Repeater.propTypes = {

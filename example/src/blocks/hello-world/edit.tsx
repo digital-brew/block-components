@@ -30,17 +30,18 @@ export const BlockEdit = (props) => {
 				/>
 			</PanelBody>
 		</InspectorControls>
-		<Placeholder label={ __( 'Post Picker', 'example' ) } instructions={ __( 'Use the text field to search for a post', 'example') } {...blockProps}>
-			<ContentPicker 
-				postTypes={ [ 'page', 'post' ] }
-				label={ __( 'Select a Post or Page', 'example' ) }
-				onPickChange={ handlePostSelection }
-				content={ selectedPost }
-				perPage={ 3 }
-				maxContentItems={ 5 }
-				isOrderable={ true }
-			/>
-		</Placeholder>
+		<div {...blockProps}>
+			<Placeholder label={ __( 'Post Picker', 'example' ) } instructions={ __( 'Use the text field to search for a post', 'example') }>
+				<ContentPicker 
+					label={ __( 'Select a Post or Page', 'example' ) }
+					onPickChange={ handlePostSelection }
+					content={ selectedPost }
+					perPage={ 3 }
+					maxContentItems={ 5 }
+					isOrderable={ true }
+				/>
+			</Placeholder>
+		</div>
 		</>
 	)
 }

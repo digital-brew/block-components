@@ -26,7 +26,6 @@ export const BlockEdit = (props) => {
 						contentTypes={['page', 'post']}
 						onPickChange={handlePostSelection}
 						fetchInitialResults
-						value={selectedPosts}
 						content={selectedPosts}
 						maxContentItems={5}
 					/>
@@ -39,7 +38,6 @@ export const BlockEdit = (props) => {
 						contentTypes={['page', 'post']}
 						onPickChange={handlePostSelection}
 						fetchInitialResults
-						value={selectedPosts}
 						content={selectedPosts}
 						maxContentItems={5}
 					/>

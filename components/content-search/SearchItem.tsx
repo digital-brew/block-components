@@ -12,21 +12,23 @@ import { RenderItemComponentProps } from './types';
 import { NormalizedSuggestion } from './utils';
 
 const SearchItemWrapper = styled(Button)`
-	display: flex;
-	text-align: left;
-	width: 100%;
-	justify-content: space-between;
-	align-items: center;
-	border-radius: 2px;
-	box-sizing: border-box;
-	height: auto !important;
-	padding: 0.3em 0.7em;
-	overflow: hidden;
+	&&& {
+		display: flex;
+		text-align: left;
+		width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		border-radius: 2px;
+		box-sizing: border-box;
+		height: auto !important;
+		padding: 0.3em 0.7em;
+		overflow: hidden;
 
-	&:hover {
-		/* Add opacity background to support future color changes */
-		/* Reduce background from #ddd to 0.05 for text contrast  */
-		background-color: rgba(0, 0, 0, 0.05);
+		&:hover {
+			/* Add opacity background to support future color changes */
+			/* Reduce background from #ddd to 0.05 for text contrast  */
+			background-color: rgba(0, 0, 0, 0.05);
+		}
 	}
 `;
 

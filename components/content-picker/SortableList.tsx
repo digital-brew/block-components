@@ -5,11 +5,21 @@ import {
 	TouchSensor,
 	useSensor,
 	useSensors,
+	DragEndEvent,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import PickedItem from './PickedItem';
+import PickedItem, { PickedItemType } from './PickedItem';
+import { ContentSearchMode } from '../content-search/types';
 
-const SortableList = ({
+interface SortableListProps {
+	posts: Array<PickedItemType>;
+	isOrderable: boolean;
+	handleItemDelete: (post: PickedItemType) => void;
+	mode: ContentSearchMode;
+	setPosts: (posts: Array<PickedItemType>) => void;
+}
+
+const SortableList: React.FC<SortableListProps> = ({
 	posts,
 	isOrderable = false,
 	handleItemDelete,
@@ -21,12 +31,12 @@ const SortableList = ({
 	const items = posts.map((item) => item.uuid);
 	const sensors = useSensors(useSensor(MouseSensor), useSensor(TouchSensor));
 
-	const handleDragEnd = (event) => {
+	const handleDragEnd = (event: DragEndEvent) => {
 		const { active, over } = event;
 
-		if (active.id !== over.id) {
+		if (active.id !== over?.id) {
 			const oldIndex = posts.findIndex((post) => post.uuid === active.id);
-			const newIndex = posts.findIndex((post) => post.uuid === over.id);
+			const newIndex = posts.findIndex((post) => post.uuid === over?.id);
 
 			setPosts(arrayMove(posts, oldIndex, newIndex));
 		}

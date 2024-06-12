@@ -6,7 +6,21 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
+import { Post, User, store as coreStore } from '@wordpress/core-data';
 import { DragHandle } from '../drag-handle';
+import { ContentSearchMode } from '../content-search/types';
+
+type Term = {
+	count: number;
+	description: string;
+	id: number;
+	link: string;
+	meta: { [key: string]: unknown };
+	name: string;
+	parent: number;
+	slug: string;
+	taxonomy: string;
+};
 
 const StyledCloseButton = styled('button')`
 	display: block;
@@ -22,36 +36,62 @@ const StyledCloseButton = styled('button')`
 	}
 `;
 
-function getType(mode) {
+function getEntityKind(mode: ContentSearchMode) {
 	let type;
 	switch (mode) {
 		case 'post':
-			type = 'postType';
+			type = 'postType' as const;
 			break;
 		case 'user':
-			type = 'root';
+			type = 'root' as const;
 			break;
 		default:
-			type = 'taxonomy';
+			type = 'taxonomy' as const;
 			break;
 	}
 
 	return type;
 }
 
+export type PickedItemType = {
+	id: number;
+	type: string;
+	uuid: string;
+	title: string;
+	url: string;
+};
+
+interface PickedItemProps {
+	item: PickedItemType;
+	isOrderable?: boolean;
+	handleItemDelete: (deletedItem: PickedItemType) => void;
+	mode: ContentSearchMode;
+	id: number | string;
+}
+
+const PickedItemContainer = styled.span`
+	&&& {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+`;
+
 /**
  * PickedItem
  *
- * @param {object} props react props
- * @param {object} props.item item to show in the picker
- * @param {boolean} props.isOrderable whether or not the picker is sortable
- * @param {Function} props.handleItemDelete callback for when the item is deleted
- * @param {string} props.mode mode of the picker
- * @param {number|string} props.id id of the item
+ * @param {PickedItemProps} props react props
  * @returns {*} React JSX
  */
-const PickedItem = ({ item, isOrderable = false, handleItemDelete, mode, id }) => {
-	const type = getType(mode);
+const PickedItem: React.FC<PickedItemProps> = ({
+	item,
+	isOrderable = false,
+	handleItemDelete,
+	mode,
+	id,
+}) => {
+	const entityKind = getEntityKind(mode);
 
 	const { attributes, isDragging, listeners, setNodeRef, transform, transition } = useSortable({
 		id,
@@ -61,23 +101,46 @@ const PickedItem = ({ item, isOrderable = false, handleItemDelete, mode, id }) =
 	// empty, it will return null, which is handled in the effect below.
 	const preparedItem = useSelect(
 		(select) => {
-			const { getEntityRecord, hasFinishedResolution } = select('core');
+			// @ts-ignore-next-line - The WordPress types are missing the hasFinishedResolution method.
+			const { getEntityRecord, hasFinishedResolution } = select(coreStore);
 
-			const getEntityRecordParameters = [type, item.type, item.id];
-			const result = getEntityRecord(...getEntityRecordParameters);
+			const getEntityRecordParameters = [entityKind, item.type, item.id] as const;
+			const result = getEntityRecord<Post | Term | User>(...getEntityRecordParameters);
 
 			if (result) {
-				const newItem = {
-					title: mode === 'post' ? result.title.rendered : result.name,
-					url: result.link,
-					id: result.id,
-				};
+				let newItem: Partial<PickedItemType>;
+
+				if (mode === 'post') {
+					const post = result as Post;
+					newItem = {
+						title: post.title.rendered,
+						url: post.link,
+						id: post.id,
+						type: post.type,
+					};
+				} else if (mode === 'user') {
+					const user = result as User;
+					newItem = {
+						title: user.name,
+						url: user.link,
+						id: user.id,
+						type: 'user',
+					};
+				} else {
+					const taxonomy = result as Term;
+					newItem = {
+						title: taxonomy.name,
+						url: taxonomy.link,
+						id: taxonomy.id,
+						type: taxonomy.taxonomy,
+					};
+				}
 
 				if (item.uuid) {
 					newItem.uuid = item.uuid;
 				}
 
-				return newItem;
+				return newItem as PickedItemType;
 			}
 
 			if (hasFinishedResolution('getEntityRecord', getEntityRecordParameters)) {
@@ -86,7 +149,7 @@ const PickedItem = ({ item, isOrderable = false, handleItemDelete, mode, id }) =
 
 			return undefined;
 		},
-		[item.id, type],
+		[item.id, entityKind],
 	);
 
 	// If `getEntityRecord` did not return an item, pass it to the delete callback.
@@ -117,14 +180,14 @@ const PickedItem = ({ item, isOrderable = false, handleItemDelete, mode, id }) =
 	return (
 		<li className={className} ref={setNodeRef} style={style}>
 			{isOrderable ? <DragHandle {...attributes} {...listeners} /> : ''}
-			<span className="block-editor-link-control__search-item-header">
+			<PickedItemContainer className="block-editor-link-control__search-item-header">
 				<span className="block-editor-link-control__search-item-title">
 					{decodeEntities(preparedItem.title)}
 				</span>
 				<span aria-hidden className="block-editor-link-control__search-item-info">
 					{filterURLForDisplay(safeDecodeURI(preparedItem.url)) || ''}
 				</span>
-			</span>
+			</PickedItemContainer>
 
 			<StyledCloseButton
 				type="button"

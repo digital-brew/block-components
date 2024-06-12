@@ -7,6 +7,9 @@ import { ContentSearch } from '../content-search';
 import SortableList from './SortableList';
 import { StyledComponentContext } from '../styled-components-context';
 import { defaultRenderItemType } from '../content-search/SearchItem';
+import { ContentSearchMode, QueryFilter, RenderItemComponentProps } from '../content-search/types';
+import { NormalizedSuggestion } from '../content-search/utils';
+import { PickedItemType } from './PickedItem';
 
 const NAMESPACE = 'tenup-content-picker';
 
@@ -32,31 +35,28 @@ const ContentPickerWrapper = styled.div`
 	width: 100%;
 `;
 
-/**
- * Content Picker
- *
- * @param {object} props React props
- * @param {string} props.label label for the picker
- * @param {boolean} props.hideLabelFromVision whether or not to hide the label from vision
- * @param {string} props.mode mode of the picker
- * @param {Array} props.contentTypes array of content types to filter by
- * @param {string} props.placeholder placeholder text for the search input
- * @param {Function} props.onPickChange callback for when the picker changes
- * @param {?Function} props.queryFilter callback that allows to modify the query
- * @param {number} props.maxContentItems max number of items to show in the picker
- * @param {boolean} props.isOrderable whether or not the picker is sortable
- * @param {string} props.singlePickedLabel label for the single picked item
- * @param {string} props.multiPickedLabel label for the multi picked item
- * @param {Array} props.content items to show in the picker
- * @param {boolean} props.uniqueContentItems whether or not the picker should only show unique items
- * @param {boolean} props.excludeCurrentPost whether or not to exclude the current post from the picker
- * @param {number} props.perPage number of items to show per page
- * @param {boolean} props.fetchInitialResults whether or not to fetch initial results on mount
- * @param {Function} props.renderItemType callback to render the item type
- * @param {?Function} props.renderItem react component to render the search result item
- * @returns {*} React JSX
- */
-export const ContentPicker = ({
+interface ContentPickerProps {
+	label?: string;
+	hideLabelFromVision?: boolean;
+	mode?: ContentSearchMode;
+	contentTypes?: string[];
+	placeholder?: string;
+	onPickChange?: (ids: any[]) => void;
+	queryFilter?: QueryFilter;
+	maxContentItems?: number;
+	isOrderable?: boolean;
+	singlePickedLabel?: string;
+	multiPickedLabel?: string;
+	content?: any[];
+	uniqueContentItems?: boolean;
+	excludeCurrentPost?: boolean;
+	perPage?: number;
+	fetchInitialResults?: boolean;
+	renderItemType?: (props: NormalizedSuggestion) => string;
+	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
+}
+
+export const ContentPicker: React.FC<ContentPickerProps> = ({
 	label = '',
 	hideLabelFromVision = true,
 	mode = 'post',
@@ -65,7 +65,7 @@ export const ContentPicker = ({
 	onPickChange = (ids) => {
 		console.log('Content picker list change', ids); // eslint-disable-line no-console
 	},
-	queryFilter = null,
+	queryFilter = undefined,
 	maxContentItems = 1,
 	isOrderable = false,
 	singlePickedLabel = __('You have selected the following item:', '10up-block-components'),
@@ -76,7 +76,7 @@ export const ContentPicker = ({
 	perPage = 20,
 	fetchInitialResults = false,
 	renderItemType = defaultRenderItemType,
-	renderItem = null,
+	renderItem = undefined,
 }) => {
 	const currentPostId = select('core/editor')?.getCurrentPostId();
 
@@ -93,7 +93,7 @@ export const ContentPicker = ({
 		}
 	}
 
-	const handleSelect = (item) => {
+	const handleSelect = (item: { id: number; subtype?: string; type: string }) => {
 		const newItems = [
 			{
 				id: item.id,
@@ -105,7 +105,7 @@ export const ContentPicker = ({
 		onPickChange(newItems);
 	};
 
-	const onDeleteItem = (deletedItem) => {
+	const onDeleteItem = (deletedItem: PickedItemType) => {
 		const newItems = content.filter(({ id, uuid }) => {
 			if (deletedItem.uuid) {
 				return uuid !== deletedItem.uuid;

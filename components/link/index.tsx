@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
  */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from '@wordpress/element';
+import { FC } from 'react';
 import { Popover, Icon, Tooltip } from '@wordpress/components';
 import { __experimentalLinkControl as LinkControl, RichText } from '@wordpress/block-editor';
 
@@ -18,15 +19,16 @@ import { __experimentalLinkControl as LinkControl, RichText } from '@wordpress/b
 import { StyledComponentContext } from '../styled-components-context';
 import { useOnClickOutside } from '../../hooks/use-on-click-outside';
 
-/**
+interface SuggestionsQuery {
+	type?: string;
+	subtype?: string;
+}
+
+/*
  * Given the Link block's type attribute, return the query params to give to
  * /wp/v2/search.
- *
- * @param {string} type Link block's type attribute.
- * @param {string} kind Link block's entity of kind (post-type|taxonomy)
- * @returns {{ type?: string, subtype?: string }} Search query params.
  */
-function getSuggestionsQuery(type, kind) {
+function getSuggestionsQuery(type: string, kind: string): SuggestionsQuery {
 	switch (type) {
 		case 'post':
 		case 'page':
@@ -84,30 +86,35 @@ const StylesRichTextLink = styled(RichText)`
 	}
 `;
 
-/**
+interface NewLinkProps {
+	url?: string;
+	opensInNewTab?: boolean;
+	title?: string;
+}
+
+interface LinkProps {
+	value?: string;
+	type?: string;
+	opensInNewTab?: boolean;
+	url?: string;
+	onLinkChange: (value: NewLinkProps) => void;
+	onTextChange: (text: string) => void;
+	onLinkRemove?: () => void;
+	kind?: string;
+	placeholder?: string;
+	className?: string;
+}
+
+/*
  * Link component that can be used inside other Gutenberg blocks for setting up URLs.
  *
  * The link should not be visible if the block is not focused. This will maintain nicer
  * visuals in the block editor as a whole.
- *
- * @param {...object} props								All properties passed to the component.
- * @param {string} props.value 							The text to show inside the link
- * @param {string} props.type 							Post or Page, used to autosuggest content for URL
- * @param {boolean} props.opensInNewTab 				Should the link open in a new tab?
- * @param {string} props.url 							The actual link to be set as href
- * @param {Function} props.onLinkChange 				Callback when the URL is changed
- * @param {Function} props.onLinkRemove 				Callback when the URL is changed
- * @param {Function} props.onTextChange 				Callback when the link's text is changed
- * @param {string} props.kind 							Page or Post
- * @param {string} props.placeholder 					Text visible before actual value is inserted
- * @param {string} props.className 					    html class to be applied to the anchor element
- *
- * @returns {*} The rendered component.
  */
-export const Link = ({
+export const Link: FC<LinkProps> = ({
 	value = undefined,
 	type = '',
-	opensInNewTab,
+	opensInNewTab = false,
 	url = undefined,
 	onLinkChange,
 	onTextChange,

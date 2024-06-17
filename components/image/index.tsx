@@ -1,21 +1,33 @@
+import { FC } from 'react';
 import { MediaPlaceholder, InspectorControls } from '@wordpress/block-editor';
 import { Spinner, FocalPointPicker, PanelBody, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 import { useMedia } from '../../hooks/use-media';
 
-export const Image = (props) => {
-	const {
-		id,
-		size = 'full',
-		onSelect,
-		focalPoint = { x: 0.5, y: 0.5 },
-		onChangeFocalPoint = undefined,
-		labels = {},
-		canEditImage = true,
-		allowedTypes = ['image'],
-		...rest
-	} = props;
+interface ImageProps {
+	id: number;
+	size?: string;
+	onSelect: (media: any) => void; // Define a more specific type for media if possible
+	focalPoint?: { x: number; y: number };
+	onChangeFocalPoint?: (focalPoint: { x: number; y: number }) => void;
+	labels?: { [key: string]: string };
+	canEditImage?: boolean;
+	allowedTypes?: string[];
+	[key: string]: any; // For additional props spread onto the img element
+}
+
+export const Image: FC<ImageProps> = ({
+	id,
+	size = 'full',
+	onSelect,
+	focalPoint = { x: 0.5, y: 0.5 },
+	onChangeFocalPoint = undefined,
+	labels = {},
+	canEditImage = true,
+	allowedTypes = ['image'],
+	...rest
+}) => {
 	const hasImage = !!id;
 	const { media, isResolvingMedia } = useMedia(id);
 
@@ -40,7 +52,7 @@ export const Image = (props) => {
 	if (isResolvingMedia) {
 		return <Spinner />;
 	}
-
+	// @ts-ignore-line - The media object is not typed by WordPress currently
 	const imageUrl = media?.media_details?.sizes?.[size]?.source_url ?? media?.source_url;
 	const altText = media?.alt_text;
 

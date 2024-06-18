@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+// @ts-ignore-next-line - The types for this package are incorrect.
 import { MediaReplaceFlow, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import type { Attachment } from '@wordpress/core-data';
@@ -44,7 +45,7 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 	const { media } = useMedia(id);
 
 	return (
-		<ToolbarGroup label={__('Media', '10up-block-components')}>
+		<ToolbarGroup>
 			{hasImage ? (
 				<>
 					<MediaReplaceFlow

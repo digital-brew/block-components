@@ -1,4 +1,5 @@
 import { useSelect, useDispatch } from '@wordpress/data';
+// @ts-ignore-next-line - The type definitions for the block-editor package are incomplete.
 import { store as blockEditorStore, useBlockEditContext } from '@wordpress/block-editor';
 
 /*
@@ -10,12 +11,14 @@ import { store as blockEditorStore, useBlockEditContext } from '@wordpress/block
 export function useBlockParentAttributes() {
 	const { clientId } = useBlockEditContext();
 	const parentBlocks = useSelect(
+		// @ts-ignore-next-line - The type definitions for the core store are incomplete.
 		(select) => select(blockEditorStore).getBlockParents(clientId),
 		[clientId],
 	);
 	const parentBlockClientId = parentBlocks[parentBlocks.length - 1];
 
 	const parentBlock = useSelect(
+		// @ts-ignore-next-line - The type definitions for the core store are incomplete.
 		(select) => select(blockEditorStore).getBlock(parentBlockClientId),
 		[parentBlockClientId],
 	);

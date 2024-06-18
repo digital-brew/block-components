@@ -45,6 +45,7 @@ export const usePrimaryTerm = (taxonomyName: string) => {
 				return null;
 			}
 
+			// @ts-ignore-next-line - The type definitions for the Yoast store are incomplete.
 			return select('yoast-seo/editor').getPrimaryTaxonomyId(taxonomyName);
 		},
 		[
@@ -69,7 +70,7 @@ export const usePrimaryTerm = (taxonomyName: string) => {
 	);
 
 	return [
-		!isEditable ? { name: __('Primary Term', 'tenup') } : primaryTerm,
+		!isEditable ? { name: __('Primary Term', 'tenup'), link: '#' } : primaryTerm,
 		isSupportedTaxonomy,
 	] as const;
 };

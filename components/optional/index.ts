@@ -1,3 +1,4 @@
+// @ts-ignore-next-line - The WordPress types are missing the hasFinishedResolution method.
 import { useBlockEditContext } from '@wordpress/block-editor';
 
 interface OptionalProps {

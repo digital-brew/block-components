@@ -1,20 +1,22 @@
 import { Inserter } from '@wordpress/block-editor';
-import { Button } from '@wordpress/components';
+import { Button, IconType } from '@wordpress/components';
+import { FC } from 'react';
 
-/**
+interface CustomBlockAppenderProps {
+	rootClientId: string;
+	className?: string;
+	buttonText?: string;
+	icon?: IconType;
+	[key: string]: any; // For additional props spread onto the Button component
+}
+
+/*
  * CustomBlockAppender.
  *
  * Provide a Button component to trigger the inserter.
  * Any undocumented props are spread onto the Button component.
- *
- * @param {object} props              All props sent to this component.
- * @param {string} props.rootClientId Client ID of the block where this is being used.
- * @param {string} props.className    class names to be added to the button.
- * @param {string} [props.buttonText] Text to display in the Button.
- * @param {string} [props.icon]       The icon to use.
- * @returns {Function} The component.
  */
-const CustomBlockAppender = ({
+export const CustomBlockAppender: FC<CustomBlockAppenderProps> = ({
 	rootClientId,
 	buttonText = '',
 	icon = 'plus',
@@ -25,7 +27,13 @@ const CustomBlockAppender = ({
 		<Inserter
 			isAppender
 			rootClientId={rootClientId}
-			renderToggle={({ onToggle, disabled }) => (
+			renderToggle={({
+				onToggle,
+				disabled,
+			}: {
+				onToggle: () => void;
+				disabled?: boolean;
+			}) => (
 				<Button
 					className={`tenup-${className}`}
 					onClick={onToggle}
@@ -39,5 +47,3 @@ const CustomBlockAppender = ({
 		/>
 	);
 };
-
-export { CustomBlockAppender };

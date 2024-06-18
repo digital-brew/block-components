@@ -20,6 +20,7 @@ export const useIsPluginActive = (pluginName: string) => {
 				[pluginName],
 			);
 
+			// @ts-ignore-next-line - The check here is intentional to see if the plugin is active.
 			const isPluginActive: boolean = ACTIVE_STATUSES.includes(plugin?.status);
 
 			return [isPluginActive, hasResolvedPlugins];

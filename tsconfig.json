@@ -1,36 +1,28 @@
 {
 	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": true,
-		"allowSyntheticDefaultImports": true,
-		"jsx": "preserve",
-		"target": "esnext",
-		"module": "esnext",
 		"lib": [
 			"dom",
+			"dom.iterable",
 			"esnext"
 		],
+		"allowJs": true,
+		"skipLibCheck": true,
 		"declaration": true,
-		"declarationMap": true,
-		"composite": true,
-		"emitDeclarationOnly": true,
-		"isolatedModules": true,
-		/* Strict Type-Checking Options */
-		"strict": true,
-		/* Additional Checks */
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noImplicitReturns": true,
-		"noFallthroughCasesInSwitch": true,
-		/* Module Resolution Options */
-		"moduleResolution": "node",
-		/* This needs to be false so our types are possible to consume without setting this */
-		"esModuleInterop": false,
+ 		"declarationMap": true,
+		"strict": false,
+		"forceConsistentCasingInFileNames": true,
+		"incremental": true,
+		"esModuleInterop": true,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
 		"resolveJsonModule": true,
-		"typeRoots": [
-			"./node_modules/@types"
-		],
-		"types": []
+		"isolatedModules": true,
+		"jsx": "preserve",
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitAny": true,
+		"strictBindCallApply": true,
+		"strictNullChecks": true,
+		"outDir": "./dist",
 	},
 	"exclude": [
 		"cypress/**",
@@ -39,5 +31,7 @@
 		"dist/**",
 		"webpack.config.js",
 		"cypress.config.js",
+		"**/*.test.ts",
+		"**/*.test.js",
 	]
 }

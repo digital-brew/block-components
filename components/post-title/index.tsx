@@ -3,17 +3,10 @@ import { RichText, store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { usePost } from '../../hooks';
 
-interface PostTitleProps<TElementType extends React.ElementType> {
-	tagName: TElementType | keyof JSX.IntrinsicElements;
-}
+interface PostTitleProps
+	extends Omit<React.ComponentPropsWithoutRef<typeof RichText>, 'value' | 'onChange'> {}
 
-type PostTitlePropsWithOmit<TElementType extends React.ElementType> = PostTitleProps<TElementType> &
-	Omit<React.ComponentPropsWithoutRef<TElementType>, keyof PostTitleProps<TElementType>>;
-
-export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
-	tagName: TagName = 'h1',
-	...rest
-}: PostTitlePropsWithOmit<TElementType>) => {
+export const PostTitle = ({ tagName: TagName = 'h1', ...rest }: PostTitleProps) => {
 	const { postId, postType, isEditable } = usePost();
 
 	const [rawTitle = '', setTitle, fullTitle] = useEntityProp(
@@ -24,12 +17,13 @@ export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 	);
 
 	const titlePlaceholder = useSelect(
+		// @ts-ignore-next-line - The type definitions for the block-editor store are incomplete.
 		(select) => select(blockEditorStore).getSettings().titlePlaceholder,
 		[],
 	);
 
 	if (!isEditable) {
-		// eslint-disable-next-line react/no-danger
+		// @ts-ignore-next-line
 		return <TagName {...rest} dangerouslySetInnerHTML={{ __html: fullTitle?.rendered }} />;
 	}
 
@@ -38,7 +32,7 @@ export const PostTitle = <TElementType extends React.ElementType = 'h1'>({
 			tagName={TagName}
 			placeholder={titlePlaceholder}
 			value={rawTitle}
-			onChange={setTitle}
+			onChange={(value: string) => setTitle(value)}
 			allowedFormats={[]}
 			{...rest}
 		/>

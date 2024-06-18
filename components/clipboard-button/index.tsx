@@ -48,7 +48,7 @@ export const ClipboardButton: React.FC<ClipboardButtonProps> = ({
 	const copied = labels.copied ? labels.copied : __('Copied');
 
 	useEffect(() => {
-		let timerId: undefined | number;
+		let timerId: ReturnType<typeof setTimeout>;
 
 		if (hasCopied) {
 			timerId = setTimeout(() => {

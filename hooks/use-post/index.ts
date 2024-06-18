@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+// @ts-ignore-next-line - The type definitions for the editor package are incomplete.
 import { store as editorStore } from '@wordpress/editor';
 import { usePostContext } from '../../components/post-context/context';
 

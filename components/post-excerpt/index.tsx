@@ -3,15 +3,29 @@ import { __ } from '@wordpress/i18n';
 import { RichText } from '@wordpress/block-editor';
 import { usePost } from '../../hooks';
 
-export const PostExcerpt = (props) => {
-	const { placeholder = __('Enter excerpt...', 'tenup'), ...rest } = props;
+interface PostExcerptProps {
+	/**
+	 * The placeholder to show when no excerpt is set.
+	 */
+	placeholder?: string;
+
+	/**
+	 * Remaining props to pass to the paragraph element.
+	 */
+	[key: string]: unknown;
+}
+
+export const PostExcerpt = ({
+	placeholder = __('Enter excerpt...', 'tenup'),
+	...rest
+}: PostExcerptProps) => {
 	const { postId, postType, isEditable } = usePost();
 
 	const [rawExcerpt = '', setExcerpt, fullExcerpt] = useEntityProp(
 		'postType',
 		postType,
 		'excerpt',
-		postId,
+		postId as string,
 	);
 
 	if (!isEditable) {
@@ -24,7 +38,7 @@ export const PostExcerpt = (props) => {
 			tagName="p"
 			placeholder={placeholder}
 			value={rawExcerpt}
-			onChange={setExcerpt}
+			onChange={(value: string) => setExcerpt(value)}
 			allowedFormats={[]}
 			{...rest}
 		/>

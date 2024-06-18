@@ -1,7 +1,9 @@
 import { useEntityProp } from '@wordpress/core-data';
 import { usePost } from '../use-post';
 
-export const usePostMetaValue = (metaKey: string) => {
+export const usePostMetaValue = <TMeta>(
+	metaKey: string,
+): [TMeta | undefined, (value: TMeta) => void] => {
 	const { postId, postType } = usePost();
 	const [meta, setMeta] = useEntityProp('postType', postType, 'meta', postId as string);
 
@@ -10,7 +12,7 @@ export const usePostMetaValue = (metaKey: string) => {
 	}
 
 	const metaValue = meta[metaKey];
-	const setMetaValue = (newValue: any) => {
+	const setMetaValue = (newValue: TMeta) => {
 		setMeta({
 			...meta,
 			[metaKey]: newValue,

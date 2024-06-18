@@ -32,14 +32,7 @@ export const IconPickerToolbarButton: React.FC<IconPickerToolbarButtonProps> = (
 				placement: 'bottom-start',
 			}}
 			renderToggle={({ isOpen, onToggle }) => (
-				<ToolbarButton
-					onClick={onToggle}
-					aria-expanded={isOpen}
-					icon={buttonIcon}
-					placeholder={undefined}
-					onPointerEnterCapture={undefined}
-					onPointerLeaveCapture={undefined}
-				>
+				<ToolbarButton onClick={onToggle} aria-expanded={isOpen} icon={buttonIcon}>
 					{buttonLabel}
 				</ToolbarButton>
 			)}

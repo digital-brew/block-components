@@ -9,20 +9,35 @@
 		"skipLibCheck": true,
 		"declaration": true,
 		"declarationMap": true,
-		"strict": false,
 		"forceConsistentCasingInFileNames": true,
 		"incremental": true,
-		"esModuleInterop": true,
-		"module": "commonjs",
-		"target": "ES2017",
+		"esModuleInterop": false,
+		"target": "esnext",
+ 		"module": "esnext",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"jsx": "preserve",
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitAny": true,
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
-		"outDir": "./dist"
+		"outDir": "./dist",
+ 		"checkJs": true,
+ 		"allowSyntheticDefaultImports": true,
+ 		"jsx": "preserve",
+ 		"composite": true,
+ 		"emitDeclarationOnly": true,
+ 		/* Strict Type-Checking Options */
+ 		"strict": true,
+ 		/* Additional Checks */
+ 		"noUnusedLocals": true,
+ 		"noUnusedParameters": true,
+ 		"noImplicitReturns": true,
+ 		/* Module Resolution Options */
+ 		"moduleResolution": "node",
+ 		"typeRoots": [
+ 			"./node_modules/@types"
+ 		],
+ 		"types": []
 	},
 	"exclude": [
 		"cypress/**",

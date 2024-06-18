@@ -1,10 +1,13 @@
+import { WP_REST_API_Term } from 'wp-types';
 import { usePost } from '../use-post';
 import { useIsSupportedTaxonomy } from '../use-is-supported-taxonomy';
 import { useAllTerms } from '../use-all-terms';
 import { useSelectedTermIds } from '../use-selected-term-ids';
 import { useSelectedTermsOfSavedPost } from '../use-selected-terms-of-saved-post';
 
-export const useSelectedTerms = (taxonomyName: string) => {
+export const useSelectedTerms = (
+	taxonomyName: string,
+): [Array<WP_REST_API_Term> | null | undefined, boolean] => {
 	const { postId, postType, isEditable } = usePost();
 	const [isSupportedTaxonomy, hasResolvedIsSupportedTaxonomy] = useIsSupportedTaxonomy(
 		postType,

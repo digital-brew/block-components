@@ -1,4 +1,5 @@
 import { useSelect } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
 
 interface IsAdminProps {
 	/**
@@ -20,8 +21,8 @@ interface IsAdminProps {
  * fallback component via the fallback prop.
  */
 export const IsAdmin: React.FC<IsAdminProps> = ({ fallback = null, children }) => {
-	const hasAdminPermissions: boolean = useSelect(
-		(select) => select('core').canUser('read', 'users?roles=1'),
+	const hasAdminPermissions = useSelect(
+		(select) => select(coreStore).canUser('read', 'users?roles=1'),
 		[],
 	);
 	return hasAdminPermissions ? children : fallback;

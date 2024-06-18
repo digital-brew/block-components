@@ -26,6 +26,7 @@ export const PostAuthor: React.FC<PostAuthorProps> & {
 
 	const [author, hasResolved] = useSelect(
 		(select) => {
+			// @ts-ignore-next-line - The type definitions for the core store are incomplete.
 			const { getEditedEntityRecord, getUser, hasFinishedResolution } = select(coreStore);
 
 			const postQuery = ['postType', postType, postId as number] as const;
@@ -33,6 +34,7 @@ export const PostAuthor: React.FC<PostAuthorProps> & {
 			const post = getEditedEntityRecord(...postQuery);
 			const hasResolvedPost = hasFinishedResolution('getEditedEntityRecord', postQuery);
 
+			// @ts-ignore-next-line - The type definitions for the core store are incomplete.
 			const _authorId = hasResolvedPost ? post?.author : undefined;
 
 			const author = getUser(_authorId);

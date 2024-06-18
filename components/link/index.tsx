@@ -11,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { FC } from 'react';
 import { Popover, Icon, Tooltip } from '@wordpress/components';
+// @ts-ignore-next-line - The type definitions for the block editor are missing the __experimentalLinkControl import.
 import { __experimentalLinkControl as LinkControl, RichText } from '@wordpress/block-editor';
 
 /**
@@ -112,7 +113,7 @@ interface LinkProps {
  * visuals in the block editor as a whole.
  */
 export const Link: FC<LinkProps> = ({
-	value = undefined,
+	value = '',
 	type = '',
 	opensInNewTab = false,
 	url = undefined,
@@ -129,7 +130,7 @@ export const Link: FC<LinkProps> = ({
 	const openPopover = () => setIsPopoverVisible(true);
 	const closePopover = () => setIsPopoverVisible(false);
 
-	const linkRef = useRef();
+	const linkRef = useRef<HTMLAnchorElement>(null);
 	const popoverRef = useOnClickOutside(closePopover);
 
 	const link = {
@@ -159,6 +160,7 @@ export const Link: FC<LinkProps> = ({
 				__unstablePastePlainText
 				allowedFormats={[]}
 				onClick={openPopover}
+				// @ts-ignore-next-line - The ref is not typed correctly in the RichText component.
 				ref={linkRef}
 				{...rest}
 			/>
@@ -180,6 +182,7 @@ export const Link: FC<LinkProps> = ({
 
 			{isPopoverVisible && (
 				<Popover
+					// @ts-ignore-next-line - In order to support older versions of Gutenberg, we need to pass the anchorRef prop.
 					anchorRef={linkRef.current}
 					anchor={linkRef.current}
 					ref={popoverRef}

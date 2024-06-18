@@ -44,8 +44,9 @@ export const LastName: React.FC<LastNameProps> = (props) => {
 	return <TagName {...rest}>{lastName}</TagName>;
 };
 
-function useDefaultAvatar() {
+function useDefaultAvatar(): string {
 	const { avatarURL: defaultAvatarUrl } = useSelect((select) => {
+		// @ts-ignore-next-line The type definitions for the block editor store are incomplete.
 		const { getSettings } = select(blockEditorStore);
 		const { __experimentalDiscussionSettings } = getSettings();
 		return __experimentalDiscussionSettings;

@@ -4,22 +4,49 @@ import { __ } from '@wordpress/i18n';
 import {
 	PostTaxonomiesHierarchicalTermSelector,
 	PostTaxonomiesFlatTermSelector,
+	// @ts-ignore - The types for this package are incorrect.
 } from '@wordpress/editor';
 import { Optional } from '@10up/block-components';
 
+import { WP_REST_API_Term } from 'wp-types';
 import { usePopover, usePost, useSelectedTerms, useTaxonomy } from '../../hooks';
 import { PostTermContext } from './context';
 import { ListItem, TermLink } from './item';
 
-export const PostTermList = (props) => {
-	const {
-		tagName: TagName = 'ul',
-		taxonomyName = 'category',
-		children = null,
-		noResultsMessage = __('Please select a term', 'tenup'),
-		...rest
-	} = props;
+interface PostTermListProps {
+	/**
+	 * The HTML tag to use for the list element.
+	 */
+	tagName?: keyof JSX.IntrinsicElements;
 
+	/**
+	 * The taxonomy name to fetch terms from.
+	 */
+	taxonomyName?: string;
+
+	/**
+	 * The message to display when no terms are selected.
+	 */
+	noResultsMessage?: string;
+
+	/**
+	 * The children to render for each term.
+	 */
+	children?:
+		| React.ReactNode
+		| ((props: {
+				selectedTerms: Array<WP_REST_API_Term> | null | undefined;
+				isEditable: boolean;
+		  }) => React.ReactNode);
+}
+
+export const PostTermList = ({
+	tagName: TagName = 'ul',
+	taxonomyName = 'category',
+	children = null,
+	noResultsMessage = __('Please select a term', 'tenup'),
+	...rest
+}: PostTermListProps) => {
 	const { isEditable } = usePost();
 
 	const hasRenderCallback = typeof children === 'function';
@@ -34,12 +61,12 @@ export const PostTermList = (props) => {
 		return <Spinner />;
 	}
 
-	const PostTaxonomiesTermSelector = taxonomy.hierarchical
+	const PostTaxonomiesTermSelector = taxonomy?.hierarchical
 		? PostTaxonomiesHierarchicalTermSelector
 		: PostTaxonomiesFlatTermSelector;
 
 	if (hasRenderCallback) {
-		return children({ selectedTerms, isEditable });
+		return children({ selectedTerms, isEditable: !!isEditable });
 	}
 
 	let listElementProps = {
@@ -53,7 +80,7 @@ export const PostTermList = (props) => {
 		};
 	}
 
-	const hasSelectedTerms = selectedTerms.length > 0;
+	const hasSelectedTerms = !!(selectedTerms && selectedTerms.length > 0);
 
 	if (hasChildComponents) {
 		return (

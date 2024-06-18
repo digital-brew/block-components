@@ -23,7 +23,6 @@ export const Icon: React.FC<IconProps> = forwardRef<HTMLDivElement, IconProps>(
 		const icon = useIcon(iconSet, name);
 
 		if (!icon || Array.isArray(icon)) {
-			// @ts-ignore -- Types on WP seem to require onPointerEnterCapture and onPointerLeaveCapture
 			return <Spinner />;
 		}
 

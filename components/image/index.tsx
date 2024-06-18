@@ -52,7 +52,7 @@ export const Image: FC<ImageProps> = ({
 	if (isResolvingMedia) {
 		return <Spinner />;
 	}
-	// @ts-ignore-line - The media object is not typed by WordPress currently
+	// @ts-ignore-next-line - The media object is not typed by WordPress currently
 	const imageUrl = media?.media_details?.sizes?.[size]?.source_url ?? media?.source_url;
 	const altText = media?.alt_text;
 

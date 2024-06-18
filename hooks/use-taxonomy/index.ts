@@ -5,6 +5,7 @@ import type { Taxonomy } from '@wordpress/core-data';
 export function useTaxonomy(taxonomyName: string) {
 	return useSelect(
 		(select) => {
+			// @ts-ignore-next-line - The type definitions for the core store are incomplete.
 			const { getTaxonomy, hasFinishedResolution } = select(coreStore);
 
 			const hasResolvedTaxonomy = hasFinishedResolution('getTaxonomy', [taxonomyName]);

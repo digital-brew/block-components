@@ -4,13 +4,13 @@ import { store as coreStore } from '@wordpress/core-data';
 export const useIsSupportedTaxonomy = (postType: string, taxonomyName: string) => {
 	return useSelect(
 		(select) => {
-			const postTypeObject = select(coreStore).getPostType(postType);
-			const hasResolvedPostType = select(coreStore).hasFinishedResolution('getPostType', [
-				postType,
-			]);
+			// @ts-ignore-next-line - The type definitions for the core store are incomplete.
+			const { getPostType, hasFinishedResolution } = select(coreStore);
+			const postTypeObject = getPostType(postType);
+			const hasResolvedPostType = hasFinishedResolution('getPostType', [postType]);
 
 			const isSupportedTaxonomy = postTypeObject?.taxonomies?.some(
-				(name) => name === taxonomyName,
+				(name: string) => name === taxonomyName,
 			);
 
 			return [!!isSupportedTaxonomy, hasResolvedPostType];

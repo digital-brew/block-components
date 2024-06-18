@@ -4,23 +4,26 @@ import type { ToggleControlProps } from '@wordpress/components/src/toggle-contro
 import { usePostMetaValue, useIsSupportedMetaField } from '../../hooks';
 import { toSentence } from './utilities';
 
-interface MetaStringProps {
+interface MetaStringProps
+	extends Omit<React.ComponentPropsWithoutRef<typeof RichText>, 'value' | 'onChange'> {
 	/**
 	 * The meta key to use.
 	 */
 	metaKey: string;
-
-	/**
-	 * A valid HTML tag.
-	 */
-	tagName?: keyof JSX.IntrinsicElements;
 }
 
 const MetaString: React.FC<MetaStringProps> = (props) => {
 	const { metaKey, tagName = 'p' } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+	const [metaValue, setMetaValue] = usePostMetaValue<string>(metaKey);
 
-	return <RichText value={metaValue} onChange={setMetaValue} tagName={tagName} {...props} />;
+	return (
+		<RichText
+			value={metaValue ?? ''}
+			onChange={(value: string) => setMetaValue(value)}
+			tagName={tagName}
+			{...props}
+		/>
+	);
 };
 
 interface MetaNumberProps {
@@ -32,7 +35,7 @@ interface MetaNumberProps {
 
 const MetaNumber: React.FC<MetaNumberProps> = (props) => {
 	const { metaKey } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+	const [metaValue, setMetaValue] = usePostMetaValue<number>(metaKey);
 
 	return (
 		<NumberControl
@@ -52,7 +55,7 @@ interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {
 
 const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
 	const { metaKey } = props;
-	const [metaValue, setMetaValue] = usePostMetaValue(metaKey);
+	const [metaValue, setMetaValue] = usePostMetaValue<boolean>(metaKey);
 
 	return <ToggleControl checked={metaValue} onChange={setMetaValue} {...props} />;
 };
@@ -66,7 +69,10 @@ interface PostMetaProps {
 	/**
 	 * The children render prop.
 	 */
-	children?: (metaValue: any, setMetaValue: (value: any) => void) => React.ReactNode;
+	children?: (
+		metaValue: any,
+		setMetaValue: (value: any) => void,
+	) => React.ReactNode | React.ReactNode;
 
 	/**
 	 * Additional props to pass to the component.
@@ -102,6 +108,7 @@ export const PostMeta: React.FC<PostMetaProps> & {
 		return <MetaBoolean {...props} label={toSentence(metaKey)} />;
 	}
 
+	// @ts-ignore-next-line - The types here are not accurate.
 	return <MetaString {...props} />;
 };
 

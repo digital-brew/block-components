@@ -33,5 +33,7 @@
 		"cypress.config.js",
 		"**/*.test.ts",
 		"**/*.test.js",
+		"**/*.spec.ts",
+		"**/*.spec.js"
 	]
 }

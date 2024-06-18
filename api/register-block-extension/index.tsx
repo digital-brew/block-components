@@ -1,40 +1,44 @@
-/* eslint-disable react/jsx-props-no-spreading */
-
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import classnames from 'classnames';
+import { FC } from 'react';
 
-/**
- * registerBlockExtension
- *
- * A helper function that allows you to add custom settings to any block.
- * Under the hood it filters the blocks registerBlockType, BlockEdit, BlockListBlock
- * and getSaveContent.extraProps filters.
- *
- * @typedef BlockOptionOptions
- * @property {object}   attributes           object for new attributes that should get added to the block
- * @property {Function} classNameGenerator   function that gets passed the attributes and should return a string for the classname
- * @property {Function} inlineStyleGenerator function that gets passed the attributes and should return an object for the inline styles
- * @property {Function} Edit                 block edit extension function. Will only get rendered when the block is selected
- * @property {string}   extensionName        unique identifier used for the name of the addFilter calls
- * @property {string}   order                the order where the extension should be rendered. Can be 'before' or 'after'. Defaults to 'after'
- *
- * @param {string|string[]}    blockName name of the block or array of block names
- * @param {BlockOptionOptions} options   configuration options
- */
+interface BlockEditProps {
+	name: string;
+	isSelected: boolean;
+	attributes: Record<string, any>;
+	setAttributes: (attributes: Record<string, any>) => void;
+	className: string;
+	style: Record<string, any>;
+	wrapperProps: {
+		[key: string]: any;
+	};
+	[key: string]: unknown;
+}
+
+interface BlockOptionOptions {
+	attributes: Record<string, any>;
+	classNameGenerator: (attributes: Record<string, unknown>) => string;
+	inlineStyleGenerator: (attributes: Record<string, unknown>) => Record<string, any>;
+	Edit: FC<BlockEditProps>;
+	extensionName: string;
+	order?: 'before' | 'after';
+}
+
 function registerBlockExtension(
-	blockName,
-	{ attributes, classNameGenerator, inlineStyleGenerator, Edit, extensionName, order = 'after' },
-) {
+	blockName: string | string[],
+	{
+		attributes,
+		classNameGenerator,
+		inlineStyleGenerator,
+		Edit,
+		extensionName,
+		order = 'after',
+	}: BlockOptionOptions,
+): void {
 	const isMultiBlock = Array.isArray(blockName);
 
-	/**
-	 * shouldApplyBlockExtension
-	 *
-	 * @param {string} blockType name of the block
-	 * @returns {boolean} true if the block is the one we want to add the extension to
-	 */
-	const shouldApplyBlockExtension = (blockType) => {
+	const shouldApplyBlockExtension = (blockType: string): boolean => {
 		if (blockName === '*') {
 			return true;
 		}
@@ -47,20 +51,11 @@ function registerBlockExtension(
 
 	const blockNamespace = isMultiBlock ? blockName.join('-') : blockName;
 
-	/**
-	 * addAttributesToBlock
-	 *
-	 * @param {object} settings block settings
-	 * @param {string} name     block name
-	 * @returns {Array}
-	 */
-	const addAttributesToBlock = (settings, name) => {
-		// return early from the block modification
+	const addAttributesToBlock = (settings: Record<string, any>, name: string) => {
 		if (!shouldApplyBlockExtension(name)) {
 			return settings;
 		}
 
-		// modify block registration object
 		return {
 			...settings,
 			attributes: {
@@ -76,21 +71,16 @@ function registerBlockExtension(
 		addAttributesToBlock,
 	);
 
-	/**
-	 * addSettingsToBlock
-	 */
-	const addSettingsToBlock = createHigherOrderComponent((BlockEdit) => {
-		return (props) => {
+	const addSettingsToBlock = createHigherOrderComponent((BlockEdit: FC<any>) => {
+		return (props: any) => {
 			const { name, isSelected } = props;
 
-			// return early from the block modification
 			if (!shouldApplyBlockExtension(name)) {
 				return <BlockEdit {...props} />;
 			}
 
 			const shouldRenderBefore = order === 'before' && isSelected;
 			const shouldRenderAfter = order === 'after' && isSelected;
-
 			const shouldRenderFallback = !shouldRenderBefore && !shouldRenderAfter && isSelected;
 
 			return (
@@ -110,14 +100,10 @@ function registerBlockExtension(
 		addSettingsToBlock,
 	);
 
-	/**
-	 * addAdditionalPropertiesInEditor
-	 */
-	const addAdditionalPropertiesInEditor = createHigherOrderComponent((BlockList) => {
-		return (props) => {
-			const { name, attributes, className, style, wrapperProps } = props;
+	const addAdditionalPropertiesInEditor = createHigherOrderComponent((BlockList: FC<any>) => {
+		return (props: BlockEditProps) => {
+			const { name, attributes, className = '', style = {}, wrapperProps } = props;
 
-			// return early from the block modification
 			if (!shouldApplyBlockExtension(name)) {
 				return <BlockList {...props} />;
 			}
@@ -152,18 +138,13 @@ function registerBlockExtension(
 		addAdditionalPropertiesInEditor,
 	);
 
-	/**
-	 * addAdditionalPropertiesToSavedMarkup
-	 *
-	 * @param {object} props      block props
-	 * @param {object} block      block object
-	 * @param {object} attributes block attributes
-	 * @returns {object}
-	 */
-	const addAdditionalPropertiesToSavedMarkup = (props, block, attributes) => {
+	const addAdditionalPropertiesToSavedMarkup = (
+		props: BlockEditProps,
+		block: { name: string },
+		attributes: Record<string, any>,
+	) => {
 		const { className, style } = props;
 
-		// return early from the block modification
 		if (!shouldApplyBlockExtension(block.name)) {
 			return props;
 		}

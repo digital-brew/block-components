@@ -1,6 +1,11 @@
 import { Popover } from '@wordpress/components';
 import { useState, useCallback, useMemo } from '@wordpress/element';
+import type { FC } from 'react';
 import { useOnClickOutside } from '../use-on-click-outside';
+
+interface PopoverComponentProps {
+	children: React.ReactNode;
+}
 
 export const usePopover = () => {
 	// Use internal state instead of a ref to make sure that the component
@@ -18,7 +23,8 @@ export const usePopover = () => {
 	};
 
 	const ref = useOnClickOutside(() => setIsVisible(false));
-	const PopoverComponent = useMemo(
+
+	const PopoverComponent: FC<PopoverComponentProps> = useMemo(
 		() =>
 			({ children }) => {
 				if (!isVisible) {

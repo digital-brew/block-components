@@ -67,6 +67,7 @@
 	"devDependencies": {
 		"@10up/cypress-wp-utils": "github:10up/cypress-wp-utils#build",
 		"@types/jest": "^29.5.12",
+		"@types/lodash": "^4.17.5",
 		"@types/react-window": "^1.8.8",
 		"@types/uuid": "^9.0.8",
 		"@types/wordpress__block-editor": "^11.5.14",

@@ -22,12 +22,6 @@
 		"strictBindCallApply": true,
 		"strictNullChecks": true,
 	},
-	"include": [
-		"next-env.d.ts",
-		"src/global.d.ts",
-		"**/*.ts",
-		"**/*.tsx"
-	],
 	"exclude": [
 		"cypress/**",
 		"example/**",

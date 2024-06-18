@@ -1,7 +1,7 @@
 import { useContext } from '@wordpress/element';
 import { PostTermContext } from './context';
 
-interface ListItemProps extends Omit<HTMLElement, 'tagName' | 'children'> {
+export interface ListItemProps extends Omit<HTMLElement, 'tagName' | 'children'> {
 	/**
 	 * The HTML tag to use for the list item.
 	 */

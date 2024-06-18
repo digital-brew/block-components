@@ -6,9 +6,9 @@ import {
 	PostTaxonomiesFlatTermSelector,
 	// @ts-ignore - The types for this package are incorrect.
 } from '@wordpress/editor';
-import { Optional } from '@10up/block-components';
-
 import { WP_REST_API_Term } from 'wp-types';
+import { Optional } from '../optional';
+
 import { usePopover, usePost, useSelectedTerms, useTaxonomy } from '../../hooks';
 import { PostTermContext } from './context';
 import { ListItem, TermLink } from './item';

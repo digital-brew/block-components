@@ -54,7 +54,7 @@
 		"@dnd-kit/utilities": "^3.2.2",
 		"@emotion/react": "^11.11.4",
 		"@emotion/styled": "^11.11.5",
-		"@floating-ui/react-dom": "^2.0.9",
+		"@floating-ui/react-dom": "^2.1.0",
 		"@leeoniya/ufuzzy": "^1.0.14",
 		"@tanstack/react-query": "^5.40.1",
 		"@typescript-eslint/parser": "^6.21.0",

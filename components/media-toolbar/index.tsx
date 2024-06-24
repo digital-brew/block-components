@@ -50,9 +50,9 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 	isOptional = false,
 	id,
 	labels = {
-		replace: __('Replace Image', '10up-block-components'),
-		remove: __('Remove Image', '10up-block-components'),
 		add: __('Add Image', '10up-block-components'),
+		remove: __('Remove Image', '10up-block-components'),
+		replace: __('Replace Image', '10up-block-components'),
 	},
 }) => {
 	const hasImage = !!id;

@@ -25,6 +25,15 @@ interface MediaToolbarProps {
 	 * The ID of the media, in this case the image.
 	 */
 	id: number;
+
+	/**
+	 * Labels for the buttons.
+	 */
+	labels?: {
+		replace?: string;
+		remove?: string;
+		add?: string;
+	};
 }
 
 /*
@@ -40,6 +49,11 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 	onRemove,
 	isOptional = false,
 	id,
+	labels = {
+		replace: __('Replace Image', '10up-block-components'),
+		remove: __('Remove Image', '10up-block-components'),
+		add: __('Add Image', '10up-block-components'),
+	},
 }) => {
 	const hasImage = !!id;
 	const { media } = useMedia(id);
@@ -51,11 +65,11 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 					<MediaReplaceFlow
 						mediaUrl={media?.source_url}
 						onSelect={onSelect}
-						name={__('Replace Image', '10up-block-components')}
+						name={labels.replace}
 					/>
 					{!!isOptional && (
 						<ToolbarButton onClick={onRemove}>
-							{__('Remove Image', '10up-block-components')}
+							{labels.remove}
 						</ToolbarButton>
 					)}
 				</>
@@ -65,7 +79,7 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 						onSelect={onSelect}
 						render={({ open }) => (
 							<ToolbarButton onClick={open}>
-								{__('Add Image', '10up-block-components')}
+								{labels.add}
 							</ToolbarButton>
 						)}
 					/>

@@ -36,6 +36,12 @@ interface MediaToolbarProps {
 	};
 }
 
+const DEFAULT_LABELS = {
+	add: __('Add Image', '10up-block-components'),
+	remove: __('Remove Image', '10up-block-components'),
+	replace: __('Replace Image', '10up-block-components'),
+};
+
 /*
  * MediaToolbar
  *
@@ -49,14 +55,11 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 	onRemove,
 	isOptional = false,
 	id,
-	labels = {
-		add: __('Add Image', '10up-block-components'),
-		remove: __('Remove Image', '10up-block-components'),
-		replace: __('Replace Image', '10up-block-components'),
-	},
+	labels = {},
 }) => {
 	const hasImage = !!id;
 	const { media } = useMedia(id);
+	const mergedLabels = { ...DEFAULT_LABELS, ...labels };
 
 	return (
 		<ToolbarGroup>
@@ -65,11 +68,11 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 					<MediaReplaceFlow
 						mediaUrl={media?.source_url}
 						onSelect={onSelect}
-						name={labels.replace}
+						name={mergedLabels.replace}
 					/>
 					{!!isOptional && (
 						<ToolbarButton onClick={onRemove}>
-							{labels.remove}
+							{mergedLabels.remove}
 						</ToolbarButton>
 					)}
 				</>
@@ -79,7 +82,7 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 						onSelect={onSelect}
 						render={({ open }) => (
 							<ToolbarButton onClick={open}>
-								{labels.add}
+								{mergedLabels.add}
 							</ToolbarButton>
 						)}
 					/>

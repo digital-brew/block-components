@@ -98,7 +98,7 @@ export const ContentPicker: React.FC<ContentPickerProps> = ({
 			{
 				id: item.id,
 				uuid: uuidv4(),
-				type: 'subtype' in item ? item.subtype : item.type,
+				type: 'subtype' in item && item.subtype ? item.subtype : item.type,
 			},
 			...content,
 		];

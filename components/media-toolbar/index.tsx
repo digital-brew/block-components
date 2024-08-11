@@ -17,7 +17,7 @@ interface MediaToolbarProps {
 	onRemove: (event: React.MouseEvent<HTMLButtonElement>) => void;
 
 	/**
-	 * Wether or not the Remove Image button should be shown.
+	 * Whether or not the Remove Image button should be shown.
 	 */
 	isOptional?: boolean;
 

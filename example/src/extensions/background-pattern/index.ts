@@ -32,8 +32,8 @@ if ( ! hasBackgroundPattern ) {
     return;
 }
 
-const backgroundPatternColorClassName = `has-${backgroundPatternColor}-background-patern-color`;
-const backgroundPatternShapeClassName = `has-${backgroundPatternShape}-background-patern-shape`;
+const backgroundPatternColorClassName = `has-${backgroundPatternColor}-background-pattern-color`;
+const backgroundPatternShapeClassName = `has-${backgroundPatternShape}-background-pattern-shape`;
 
 return `has-background-pattern ${backgroundPatternColorClassName} ${backgroundPatternShapeClassName}`;
 

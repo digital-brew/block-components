@@ -59,7 +59,7 @@ Whenever a PR gets merged into the `develop` branch, a GitHub Action runs that w
 
 ### Deploying `patch`, `minor`, or `major` versions
 
-Whenever a new `patch`, `minor`, or `major` version of the package should get released, the code first needs to get merged into the `trunk` branch. Once the code is on the `trunk` brach you need to head to the `Actions` tab in the repository and select the [`Publish new version to NPM`](https://github.com/10up/block-components/actions/workflows/release-npm-version.yml) Action in the sidebar.
+Whenever a new `patch`, `minor`, or `major` version of the package should get released, the code first needs to get merged into the `trunk` branch. Once the code is on the `trunk` branch you need to head to the `Actions` tab in the repository and select the [`Publish new version to NPM`](https://github.com/10up/block-components/actions/workflows/release-npm-version.yml) Action in the sidebar.
 
 ![GitHub Actions Window](./images/release-action-page.png)
 

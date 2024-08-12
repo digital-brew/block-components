@@ -18,7 +18,7 @@ jobs:
         with:
           build: npm run build --workspaces --if-present
           start: npm run start-test-env
-          wait-on: http://localhost:8888
+          wait-on: 'http://localhost:8888/wp-admin/index.php, http://localhost:8889'
           wait-on-timeout: 220
           browser: chrome
           record: true

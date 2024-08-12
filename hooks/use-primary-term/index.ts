@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as coreStore } from '@wordpress/core-data';
-import type { WP_REST_API_Taxonomy } from 'wp-types';
+import type { WP_REST_API_Term } from 'wp-types';
 import { usePost } from '../use-post';
 import { useIsPluginActive } from '../use-is-plugin-active';
 import { useIsSupportedTaxonomy } from '../use-is-supported-taxonomy';
@@ -64,7 +64,7 @@ export const usePrimaryTerm = (taxonomyName: string) => {
 			}
 
 			const { getEntityRecord } = select(coreStore);
-			return getEntityRecord<WP_REST_API_Taxonomy>('taxonomy', taxonomyName, primaryTermId);
+			return getEntityRecord<WP_REST_API_Term>('taxonomy', taxonomyName, primaryTermId);
 		},
 		[primaryTermId],
 	);

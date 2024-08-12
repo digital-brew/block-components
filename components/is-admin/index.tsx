@@ -16,7 +16,7 @@ interface IsAdminProps {
 /*
  * IsAdmin
  *
- * A wrapper component that checks wether the current user has admin capabilities
+ * A wrapper component that checks whether the current user has admin capabilities
  * and only returns the child components if the user is an admin. You can pass a
  * fallback component via the fallback prop.
  */

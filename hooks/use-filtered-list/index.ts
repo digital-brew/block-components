@@ -23,8 +23,16 @@ export function useFilteredList<TListItem extends { [key: string]: string }>(
 
 	const filterList = useCallback(
 		(searchTerm: string) => {
-			const matchedNames = fuzzy.filter(propertyList, searchTerm);
-			const results = matchedNames?.map((index) => list[index]) || [];
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			const [matchedIds, _idInfos, order] = fuzzy.search(propertyList, searchTerm);
+
+			if (!matchedIds || !order) {
+				return [];
+			}
+
+			// sort the matchedIds based on the order
+			const sortedItems = order.map((index) => matchedIds[index]);
+			const results = sortedItems.map((index) => list[index]);
 			return results;
 		},
 		[propertyList, list],

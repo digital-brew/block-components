@@ -1,11 +1,14 @@
 import { RichText } from '@wordpress/block-editor';
 import { __experimentalNumberControl as NumberControl, ToggleControl } from '@wordpress/components';
 import type { ToggleControlProps } from '@wordpress/components/src/toggle-control/types';
-import { usePostMetaValue, useIsSupportedMetaField } from '../../hooks';
+import { usePostMetaValue, useIsSupportedMetaField, usePost } from '../../hooks';
 import { toSentence } from './utilities';
 
 interface MetaStringProps
-	extends Omit<React.ComponentPropsWithoutRef<typeof RichText>, 'value' | 'onChange'> {
+	extends Omit<
+		React.ComponentPropsWithoutRef<typeof RichText>,
+		'value' | 'onChange' | 'multiline'
+	> {
 	/**
 	 * The meta key to use.
 	 */
@@ -15,6 +18,11 @@ interface MetaStringProps
 const MetaString: React.FC<MetaStringProps> = (props) => {
 	const { metaKey, tagName = 'p' } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<string>(metaKey);
+	const { isEditable } = usePost();
+
+	if (!isEditable) {
+		return <RichText.Content value={metaValue ?? ''} tagName={tagName} {...props} />;
+	}
 
 	return (
 		<RichText
@@ -36,11 +44,13 @@ interface MetaNumberProps {
 const MetaNumber: React.FC<MetaNumberProps> = (props) => {
 	const { metaKey } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<number>(metaKey);
+	const { isEditable } = usePost();
 
 	return (
 		<NumberControl
 			value={metaValue}
 			onChange={(value) => setMetaValue(parseInt(value ?? '', 10))}
+			disabled={!isEditable}
 			{...props}
 		/>
 	);
@@ -56,8 +66,16 @@ interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {
 const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
 	const { metaKey } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<boolean>(metaKey);
+	const { isEditable } = usePost();
 
-	return <ToggleControl checked={metaValue} onChange={setMetaValue} {...props} />;
+	return (
+		<ToggleControl
+			checked={metaValue}
+			onChange={setMetaValue}
+			disabled={!isEditable}
+			{...props}
+		/>
+	);
 };
 
 interface PostMetaProps {

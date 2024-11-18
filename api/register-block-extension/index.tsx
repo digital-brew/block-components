@@ -49,6 +49,10 @@ function registerBlockExtension(
 		return blockType === blockName;
 	};
 
+	if (blockName === '*') {
+		blockName = 'all';
+	}
+
 	const blockNamespace = isMultiBlock ? blockName.join('-') : blockName;
 
 	const addAttributesToBlock = (settings: Record<string, any>, name: string) => {

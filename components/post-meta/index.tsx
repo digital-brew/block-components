@@ -16,7 +16,7 @@ interface MetaStringProps
 }
 
 const MetaString: React.FC<MetaStringProps> = (props) => {
-	const { metaKey, tagName = 'p' } = props;
+	const { metaKey, tagName = 'p', ...rest } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<string>(metaKey);
 	const { isEditable } = usePost();
 
@@ -29,7 +29,7 @@ const MetaString: React.FC<MetaStringProps> = (props) => {
 			value={metaValue ?? ''}
 			onChange={(value: string) => setMetaValue(value)}
 			tagName={tagName}
-			{...props}
+			{...rest}
 		/>
 	);
 };
@@ -42,7 +42,7 @@ interface MetaNumberProps {
 }
 
 const MetaNumber: React.FC<MetaNumberProps> = (props) => {
-	const { metaKey } = props;
+	const { metaKey, ...rest } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<number>(metaKey);
 	const { isEditable } = usePost();
 
@@ -51,7 +51,7 @@ const MetaNumber: React.FC<MetaNumberProps> = (props) => {
 			value={metaValue}
 			onChange={(value) => setMetaValue(parseInt(value ?? '', 10))}
 			disabled={!isEditable}
-			{...props}
+			{...rest}
 		/>
 	);
 };
@@ -64,7 +64,7 @@ interface MetaBooleanProps extends Pick<ToggleControlProps, 'label'> {
 }
 
 const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
-	const { metaKey } = props;
+	const { metaKey, ...rest } = props;
 	const [metaValue, setMetaValue] = usePostMetaValue<boolean>(metaKey);
 	const { isEditable } = usePost();
 
@@ -73,7 +73,7 @@ const MetaBoolean: React.FC<MetaBooleanProps> = (props) => {
 			checked={metaValue}
 			onChange={setMetaValue}
 			disabled={!isEditable}
-			{...props}
+			{...rest}
 		/>
 	);
 };

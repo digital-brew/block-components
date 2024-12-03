@@ -4,7 +4,6 @@ import { useSelect, dispatch } from '@wordpress/data';
 import { cloneElement } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import PropTypes from 'prop-types';
 import { v4 as uuid } from 'uuid';
 
 import {
@@ -27,168 +26,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { DragHandle } from '../drag-handle';
 
 /**
- * The Repeater Component.
- *
- * @param {object} props React props
- * @param {Function} props.children Render prop to render the children.
- * @param {string} props.attribute property of the block attribute that will provide data for Repeater.
- * @param {string} props.addButton render prop to customize the "Add item" button.
- * @param {boolean} props.allowReordering boolean to toggle reordering of Repeater items.
- * @returns {*} React JSX
- */
-export const Repeater = ({ children, attribute, addButton, allowReordering }) => {
-	const { clientId, name } = useBlockEditContext();
-	const { updateBlockAttributes } = dispatch(blockEditorStore);
-
-	const sensors = useSensors(
-		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates,
-		}),
-	);
-
-	const { repeaterData, defaultRepeaterData } = useSelect((select) => {
-		const { getBlockAttributes } = select(blockEditorStore);
-		const { getBlockType } = select(blocksStore);
-		const repeaterDataTemp = getBlockAttributes(clientId)[attribute];
-
-		if (repeaterDataTemp.length === 1 && !repeaterDataTemp[0].id) {
-			repeaterDataTemp[0].id = uuid();
-		}
-
-		return {
-			repeaterData: repeaterDataTemp,
-			defaultRepeaterData: getBlockType(name).attributes[attribute].default,
-		};
-	});
-
-	function handleDragEnd(event) {
-		const { active, over } = event;
-
-		if (active.id !== over.id) {
-			const moveArray = (items) => {
-				const oldIndex = items.findIndex((item) => item.id === active.id);
-				const newIndex = items.findIndex((item) => item.id === over.id);
-
-				return arrayMove(items, oldIndex, newIndex);
-			};
-
-			updateBlockAttributes(clientId, {
-				[attribute]: moveArray(repeaterData),
-			});
-		}
-	}
-
-	/**
-	 * Adds a new repeater item.
-	 */
-	function addItem() {
-		/*
-		 * [...defaultRepeaterData] does a shallow copy. To ensure deep-copy,
-		 * we do JSON.parse(JSON.stringify()).
-		 */
-		const defaultRepeaterDataCopy = JSON.parse(JSON.stringify(defaultRepeaterData));
-
-		if (!defaultRepeaterData.length) {
-			defaultRepeaterDataCopy.push([]);
-		}
-
-		defaultRepeaterDataCopy[0].id = uuid();
-
-		updateBlockAttributes(clientId, {
-			[attribute]: [...repeaterData, ...defaultRepeaterDataCopy],
-		});
-	}
-
-	/**
-	 * Updates the item currently being edited.
-	 *
-	 * @param {string|number|boolean} value The value that should be used to updated the item.
-	 * @param {number} index The index at which the item should be updated.
-	 */
-	function setItem(value, index) {
-		/*
-		 * [...repeaterData] does a shallow copy. To ensure deep-copy,
-		 * we do JSON.parse(JSON.stringify()).
-		 */
-		const repeaterDataCopy = JSON.parse(JSON.stringify(repeaterData));
-
-		if (typeof value === 'object' && value !== null) {
-			repeaterDataCopy[index] = { ...repeaterDataCopy[index], ...value };
-		} else {
-			repeaterDataCopy[index] = value;
-		}
-		updateBlockAttributes(clientId, { [attribute]: repeaterDataCopy });
-	}
-
-	/**
-	 * Removes an item from the list.
-	 *
-	 * @param {number} index The index of the item that needs to be removed.
-	 */
-	function removeItem(index) {
-		const repeaterDataCopy = JSON.parse(JSON.stringify(repeaterData)).filter(
-			(item, innerIndex) => index !== innerIndex,
-		);
-		updateBlockAttributes(clientId, { [attribute]: repeaterDataCopy });
-	}
-
-	const itemIds = repeaterData.map((item) => item.id);
-
-	return (
-		<>
-			{allowReordering ? (
-				<DndContext
-					sensors={sensors}
-					collisionDetection={closestCenter}
-					onDragEnd={(e) => handleDragEnd(e)}
-					modifiers={[restrictToVerticalAxis]}
-				>
-					<SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-						{repeaterData.map((item, key) => {
-							return (
-								<SortableItem
-									item={item}
-									setItem={(val) => setItem(val, key)}
-									removeItem={() => removeItem(key)}
-									key={item.id}
-									id={item.id}
-								>
-									{(item, id, setItem, removeItem) => {
-										return children(
-											item,
-											id,
-											(val) => setItem(val, key),
-											() => removeItem(key),
-										);
-									}}
-								</SortableItem>
-							);
-						})}
-					</SortableContext>
-				</DndContext>
-			) : (
-				repeaterData.map((item, key) => {
-					return children(
-						item,
-						item.id,
-						(val) => setItem(val, key),
-						() => removeItem(key),
-					);
-				})
-			)}
-			{typeof addButton === 'function' ? (
-				addButton(addItem)
-			) : (
-				<Button variant="primary" onClick={() => addItem()}>
-					{__('Add item')}
-				</Button>
-			)}
-		</>
-	);
-};
-
-/**
  * The Sortable Item Component.
  *
  * @param {object} props React props
@@ -199,7 +36,7 @@ export const Repeater = ({ children, attribute, addButton, allowReordering }) =>
  * @param {string} props.id A string identifier for a repeater item.
  * @returns {*} React JSX
  */
-const SortableItem = ({ children, item, setItem, removeItem, id }) => {
+const SortableItem = ({ children, item = {}, setItem = null, removeItem = null, id = '' }) => {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
 		id,
 	});
@@ -231,34 +68,228 @@ const SortableItem = ({ children, item, setItem, removeItem, id }) => {
 	return clonedRepeaterChild;
 };
 
-Repeater.defaultProps = {
-	attribute: 'items',
-	addButton: null,
-	allowReordering: false,
+/**
+ * The Repeater Component.
+ *
+ * @param {object} props React props
+ * @param {Function} props.children Render prop to render the children.
+ * @param {string} props.addButton render prop to customize the "Add item" button.
+ * @param {boolean} props.allowReordering boolean to toggle reordering of Repeater items.
+ * @param {Function} props.onChange callback function to update the block attribute.
+ * @param {Array} props.value array of Repeater items.
+ * @param {Array} props.defaultValue array of default Repeater items.
+ * @returns {*} React JSX
+ */
+export const AbstractRepeater = ({
+	children,
+	addButton = null,
+	allowReordering = false,
+	onChange,
+	value,
+	defaultValue = [],
+}) => {
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	);
+
+	function handleDragEnd(event) {
+		const { active, over } = event;
+
+		if (active.id !== over.id) {
+			const moveArray = (items) => {
+				const oldIndex = items.findIndex((item) => item.id === active.id);
+				const newIndex = items.findIndex((item) => item.id === over.id);
+
+				return arrayMove(items, oldIndex, newIndex);
+			};
+
+			onChange(moveArray(value));
+		}
+	}
+
+	/**
+	 * Adds a new repeater item.
+	 */
+	function addItem() {
+		/*
+		 * [...defaultValue] does a shallow copy. To ensure deep-copy,
+		 * we do JSON.parse(JSON.stringify()).
+		 */
+		const defaultValueCopy = JSON.parse(JSON.stringify(defaultValue));
+
+		if (!defaultValue.length) {
+			defaultValueCopy.push({});
+		}
+
+		defaultValueCopy[0].id = uuid();
+
+		onChange([...value, ...defaultValueCopy]);
+	}
+
+	/**
+	 * Updates the item currently being edited.
+	 *
+	 * @param {string|number|boolean} newValue The value that should be used to updated the item.
+	 * @param {number} index The index at which the item should be updated.
+	 */
+	function setItem(newValue, index) {
+		/*
+		 * [...value] does a shallow copy. To ensure deep-copy,
+		 * we do JSON.parse(JSON.stringify()).
+		 */
+		const valueCopy = JSON.parse(JSON.stringify(value));
+
+		if (typeof newValue === 'object' && newValue !== null) {
+			valueCopy[index] = { ...valueCopy[index], ...newValue };
+		} else {
+			valueCopy[index] = newValue;
+		}
+
+		onChange(valueCopy);
+	}
+
+	/**
+	 * Removes an item from the list.
+	 *
+	 * @param {number} index The index of the item that needs to be removed.
+	 */
+	function removeItem(index) {
+		const valueCopy = JSON.parse(JSON.stringify(value)).filter(
+			(item, innerIndex) => index !== innerIndex,
+		);
+		onChange(valueCopy);
+	}
+
+	const itemIds = value.map((item) => item.id);
+
+	return (
+		<>
+			{allowReordering ? (
+				<DndContext
+					sensors={sensors}
+					collisionDetection={closestCenter}
+					onDragEnd={(e) => handleDragEnd(e)}
+					modifiers={[restrictToVerticalAxis]}
+				>
+					<SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+						{value.map((item, key) => {
+							return (
+								<SortableItem
+									item={item}
+									setItem={(val) => setItem(val, key)}
+									removeItem={() => removeItem(key)}
+									key={item.id}
+									id={item.id}
+								>
+									{(item, id, setItem, removeItem) => {
+										return children(
+											item,
+											id,
+											(val) => setItem(val, key),
+											() => removeItem(key),
+										);
+									}}
+								</SortableItem>
+							);
+						})}
+					</SortableContext>
+				</DndContext>
+			) : (
+				value.map((item, key) => {
+					return children(
+						item,
+						item.id,
+						(val) => setItem(val, key),
+						() => removeItem(key),
+					);
+				})
+			)}
+			{typeof addButton === 'function' ? (
+				addButton(addItem)
+			) : (
+				<Button variant="primary" onClick={() => addItem()}>
+					{__('Add item')}
+				</Button>
+			)}
+		</>
+	);
 };
 
-Repeater.propTypes = {
-	children: PropTypes.func.isRequired,
-	attribute: PropTypes.string,
-	addButton: PropTypes.func,
-	allowReordering: PropTypes.bool,
+export const AttributeRepeater = ({
+	children,
+	attribute = null,
+	addButton = null,
+	allowReordering = false,
+}) => {
+	const { clientId, name } = useBlockEditContext();
+	const { updateBlockAttributes } = dispatch(blockEditorStore);
+
+	const attributeValue = useSelect((select) => {
+		const attributes = select(blockEditorStore).getBlockAttributes(clientId);
+		return attributes[attribute] || [];
+	});
+
+	const { defaultRepeaterData } = useSelect((select) => {
+		return {
+			defaultRepeaterData:
+				select(blocksStore).getBlockType(name).attributes[attribute].default,
+		};
+	});
+
+	if (defaultRepeaterData.length) {
+		defaultRepeaterData[0].id = uuid();
+	}
+
+	const handleOnChange = (value) => {
+		updateBlockAttributes(clientId, { [attribute]: value });
+	};
+
+	return (
+		<AbstractRepeater
+			addButton={addButton}
+			allowReordering={allowReordering}
+			onChange={handleOnChange}
+			value={attributeValue}
+			defaultValue={defaultRepeaterData}
+		>
+			{children}
+		</AbstractRepeater>
+	);
 };
 
-SortableItem.defaultProps = {
-	attribute: 'items',
-	addItem: null,
-	setItem: null,
-	removeItem: null,
-	item: {},
-	id: '',
-};
+export const Repeater = ({
+	children,
+	addButton = null,
+	allowReordering = false,
+	onChange,
+	value,
+	defaultValue = [],
+	attribute = null,
+}) => {
+	if (attribute) {
+		return (
+			<AttributeRepeater
+				attribute={attribute}
+				addButton={addButton}
+				allowReordering={allowReordering}
+			>
+				{children}
+			</AttributeRepeater>
+		);
+	}
 
-SortableItem.propTypes = {
-	children: PropTypes.func.isRequired,
-	attribute: PropTypes.string,
-	addItem: PropTypes.func,
-	setItem: PropTypes.func,
-	removeItem: PropTypes.func,
-	item: PropTypes.object,
-	id: PropTypes.string,
+	return (
+		<AbstractRepeater
+			addButton={addButton}
+			allowReordering={allowReordering}
+			onChange={onChange}
+			value={value}
+			defaultValue={defaultValue}
+		>
+			{children}
+		</AbstractRepeater>
+	);
 };

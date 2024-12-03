@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
     "name": "example/link-example",
     "title": "Link Example",
     "description": "Example Block to show the Link Component in usage",
@@ -35,6 +35,6 @@
             "default": false
         }
     },
-	"editorScript": "file:./index.js",
+	"editorScript": "file:./index.ts",
 	"render": "file:./render.php"
 }

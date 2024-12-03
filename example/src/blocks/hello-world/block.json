@@ -1,4 +1,5 @@
 {
+	"apiVersion": 3,
 	"name": "example/hello-world",
 	"title": "Hello World",
     "description": "Example Block to show the Post Picker in usage",
@@ -14,5 +15,5 @@
         }
     },
     "variations": [],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

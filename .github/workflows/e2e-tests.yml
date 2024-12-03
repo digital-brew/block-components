@@ -8,9 +8,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
       - name: Run Cypress E2E Tests
@@ -18,8 +18,8 @@ jobs:
         with:
           build: npm run build --workspaces --if-present
           start: npm run start-test-env
-          wait-on: http://localhost:8888
-          wait-on-timeout: 120
+          wait-on: 'http://localhost:8888/wp-admin/index.php, http://localhost:8889'
+          wait-on-timeout: 220
           browser: chrome
           record: true
           parallel: false

@@ -14,6 +14,8 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { __experimentalTreeGrid as TreeGrid } from '@wordpress/components';
 import { useCallback, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
+import { Post, User, store as coreStore } from '@wordpress/core-data';
 import PickedItem, { PickedItemType } from './PickedItem';
 import { DraggableChip } from './DraggableChip';
 import { ContentSearchMode } from '../content-search/types';
@@ -31,6 +33,35 @@ interface SortableListProps {
 	setPosts: (posts: Array<PickedItemType>) => void;
 }
 
+type Term = {
+	count: number;
+	description: string;
+	id: number;
+	link: string;
+	meta: { [key: string]: unknown };
+	name: string;
+	parent: number;
+	slug: string;
+	taxonomy: string;
+};
+
+function getEntityKind(mode: ContentSearchMode) {
+	let type;
+	switch (mode) {
+		case 'post':
+			type = 'postType' as const;
+			break;
+		case 'user':
+			type = 'root' as const;
+			break;
+		default:
+			type = 'taxonomy' as const;
+			break;
+	}
+
+	return type;
+}
+
 const SortableList: React.FC<SortableListProps> = ({
 	posts,
 	isOrderable = false,
@@ -40,6 +71,62 @@ const SortableList: React.FC<SortableListProps> = ({
 }) => {
 	const hasMultiplePosts = posts.length > 1;
 	const [activeId, setActiveId] = useState<string | null>(null);
+
+	const entityKind = getEntityKind(mode);
+
+	// Fetch all posts data at once
+	const preparedItems = useSelect(
+		(select) => {
+			// @ts-ignore-next-line - The WordPress types are missing the hasFinishedResolution method.
+			const { getEntityRecord, hasFinishedResolution } = select(coreStore);
+
+			return posts.reduce<{ [key: string]: PickedItemType | null }>((acc, item) => {
+				const getEntityRecordParameters = [entityKind, item.type, item.id] as const;
+				const result = getEntityRecord<Post | Term | User>(...getEntityRecordParameters);
+
+				if (result) {
+					let newItem: Partial<PickedItemType>;
+
+					if (mode === 'post') {
+						const post = result as Post;
+						newItem = {
+							title: post.title.rendered,
+							url: post.link,
+							id: post.id,
+							type: post.type,
+						};
+					} else if (mode === 'user') {
+						const user = result as User;
+						newItem = {
+							title: user.name,
+							url: user.link,
+							id: user.id,
+							type: 'user',
+						};
+					} else {
+						const taxonomy = result as Term;
+						newItem = {
+							title: taxonomy.name,
+							url: taxonomy.link,
+							id: taxonomy.id,
+							type: taxonomy.taxonomy,
+						};
+					}
+
+					if (item.uuid) {
+						newItem.uuid = item.uuid;
+					}
+
+					acc[item.uuid] = newItem as PickedItemType;
+				} else if (hasFinishedResolution('getEntityRecord', getEntityRecordParameters)) {
+					acc[item.uuid] = null;
+				}
+
+				return acc;
+			}, {});
+		},
+		[posts, entityKind],
+	);
 
 	const items = posts.map((item) => item.uuid);
 	const sensors = useSensors(
@@ -80,27 +167,30 @@ const SortableList: React.FC<SortableListProps> = ({
 	}, []);
 
 	const activePost = useMemo(
-		() => posts.find((post) => post.uuid === activeId),
-		[activeId, posts],
+		() => preparedItems?.[activeId as string],
+		[activeId, preparedItems],
 	);
-
-	console.log({ activePost });
 
 	if (!hasMultiplePosts && !isOrderable) {
 		return (
 			<>
-				{posts.map((post) => (
-					<PickedItem
-						isOrderable={false}
-						key={post.uuid}
-						handleItemDelete={handleItemDelete}
-						item={post}
-						mode={mode}
-						id={post.uuid}
-						positionInSet={1}
-						setSize={1}
-					/>
-				))}
+				{posts.map((post) => {
+					const preparedItem = preparedItems[post.uuid];
+					if (!preparedItem) return null;
+
+					return (
+						<PickedItem
+							isOrderable={false}
+							key={post.uuid}
+							handleItemDelete={handleItemDelete}
+							item={preparedItem}
+							mode={mode}
+							id={post.uuid}
+							positionInSet={1}
+							setSize={1}
+						/>
+					);
+				})}
 			</>
 		);
 	}
@@ -120,18 +210,23 @@ const SortableList: React.FC<SortableListProps> = ({
 				onExpandRow={() => {}}
 			>
 				<SortableContext items={items} strategy={verticalListSortingStrategy}>
-					{posts.map((post, index) => (
-						<PickedItem
-							isOrderable={hasMultiplePosts && isOrderable}
-							key={post.uuid}
-							handleItemDelete={handleItemDelete}
-							item={post}
-							mode={mode}
-							id={post.uuid}
-							positionInSet={index + 1}
-							setSize={posts.length}
-						/>
-					))}
+					{posts.map((post, index) => {
+						const preparedItem = preparedItems[post.uuid];
+						if (!preparedItem) return null;
+
+						return (
+							<PickedItem
+								isOrderable={hasMultiplePosts && isOrderable}
+								key={post.uuid}
+								handleItemDelete={handleItemDelete}
+								item={preparedItem}
+								mode={mode}
+								id={post.uuid}
+								positionInSet={index + 1}
+								setSize={posts.length}
+							/>
+						);
+					})}
 				</SortableContext>
 			</TreeGrid>
 			<DragOverlay dropAnimation={dropAnimation}>

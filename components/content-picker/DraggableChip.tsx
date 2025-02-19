@@ -26,12 +26,16 @@ const Chip = styled.div`
 `;
 
 interface DraggableChipProps {
-	title?: string;
+	title: string;
 }
 
-export const DraggableChip = ({
-	title = __('Moving 1 item', '10up-block-components'),
-}: DraggableChipProps) => {
+export const DraggableChip = (props: DraggableChipProps) => {
+	let { title = __('Moving 1 item', '10up-block-components') } = props;
+
+	if (!title) {
+		title = __('Moving 1 item', '10up-block-components');
+	}
+
 	return (
 		<ChipWrapper>
 			<Chip data-testid="draggable-chip">

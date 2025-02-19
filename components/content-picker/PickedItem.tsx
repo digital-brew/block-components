@@ -4,42 +4,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { safeDecodeURI, filterURLForDisplay } from '@wordpress/url';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useSelect } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
-import { Post, User, store as coreStore } from '@wordpress/core-data';
 import { close } from '@wordpress/icons';
 import { Button, __experimentalTreeGridRow as TreeGridRow } from '@wordpress/components';
 import { DragHandle } from '../drag-handle';
 import { ContentSearchMode } from '../content-search/types';
-
-type Term = {
-	count: number;
-	description: string;
-	id: number;
-	link: string;
-	meta: { [key: string]: unknown };
-	name: string;
-	parent: number;
-	slug: string;
-	taxonomy: string;
-};
-
-function getEntityKind(mode: ContentSearchMode) {
-	let type;
-	switch (mode) {
-		case 'post':
-			type = 'postType' as const;
-			break;
-		case 'user':
-			type = 'root' as const;
-			break;
-		default:
-			type = 'taxonomy' as const;
-			break;
-	}
-
-	return type;
-}
 
 export type PickedItemType = {
 	id: number;
@@ -152,88 +120,19 @@ const PickedItem: React.FC<PickedItemProps> = ({
 	item,
 	isOrderable = false,
 	handleItemDelete,
-	mode,
 	id,
 	isDragging = false,
 	positionInSet = 1,
 	setSize = 1,
 }) => {
-	const entityKind = getEntityKind(mode);
-
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id,
 	});
-
-	// This will return undefined while the item data is being fetched. If the item comes back
-	// empty, it will return null, which is handled in the effect below.
-	const preparedItem = useSelect(
-		(select) => {
-			// @ts-ignore-next-line - The WordPress types are missing the hasFinishedResolution method.
-			const { getEntityRecord, hasFinishedResolution } = select(coreStore);
-
-			const getEntityRecordParameters = [entityKind, item.type, item.id] as const;
-			const result = getEntityRecord<Post | Term | User>(...getEntityRecordParameters);
-
-			if (result) {
-				let newItem: Partial<PickedItemType>;
-
-				if (mode === 'post') {
-					const post = result as Post;
-					newItem = {
-						title: post.title.rendered,
-						url: post.link,
-						id: post.id,
-						type: post.type,
-					};
-				} else if (mode === 'user') {
-					const user = result as User;
-					newItem = {
-						title: user.name,
-						url: user.link,
-						id: user.id,
-						type: 'user',
-					};
-				} else {
-					const taxonomy = result as Term;
-					newItem = {
-						title: taxonomy.name,
-						url: taxonomy.link,
-						id: taxonomy.id,
-						type: taxonomy.taxonomy,
-					};
-				}
-
-				if (item.uuid) {
-					newItem.uuid = item.uuid;
-				}
-
-				return newItem as PickedItemType;
-			}
-
-			if (hasFinishedResolution('getEntityRecord', getEntityRecordParameters)) {
-				return null;
-			}
-
-			return undefined;
-		},
-		[item.id, entityKind],
-	);
-
-	// If `getEntityRecord` did not return an item, pass it to the delete callback.
-	useEffect(() => {
-		if (preparedItem === null) {
-			handleItemDelete(item);
-		}
-	}, [item, handleItemDelete, preparedItem]);
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
 		transition,
 	};
-
-	if (!preparedItem) {
-		return null;
-	}
 
 	return (
 		<TreeGridRow level={1} positionInSet={positionInSet} setSize={setSize}>
@@ -250,11 +149,9 @@ const PickedItem: React.FC<PickedItemProps> = ({
 					</DragHandleWrapper>
 				)}
 				<ItemContent isDragging={isDragging}>
-					<ItemTitle>{decodeEntities(preparedItem.title)}</ItemTitle>
-					{preparedItem.url && (
-						<ItemURL>
-							{filterURLForDisplay(safeDecodeURI(preparedItem.url)) || ''}
-						</ItemURL>
+					<ItemTitle>{decodeEntities(item.title)}</ItemTitle>
+					{item.url && (
+						<ItemURL>{filterURLForDisplay(safeDecodeURI(item.url)) || ''}</ItemURL>
 					)}
 				</ItemContent>
 				{!isDragging && (

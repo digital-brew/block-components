@@ -101,14 +101,14 @@ const ItemContent = styled.div`
 `;
 
 const ItemTitle = styled.span`
-	font-size: 13px;
+	font-size: 0.875rem;
 	line-height: 1.4;
 	font-weight: 500;
 	color: #1e1e1e;
 `;
 
 const ItemURL = styled.span`
-	font-size: 12px;
+	font-size: 0.75rem;
 	line-height: 1.4;
 	color: #757575;
 	white-space: nowrap;
@@ -136,6 +136,12 @@ const MoveButton = styled(Button)`
 		opacity: 1;
 		pointer-events: auto;
 	}
+`;
+
+const ButtonContainer = styled.div`
+	display: flex;
+	gap: 4px;
+	margin-left: auto;
 `;
 
 interface PickedItemProps {
@@ -203,50 +209,52 @@ const PickedItem: React.FC<PickedItemProps> = ({
 						<ItemURL>{filterURLForDisplay(safeDecodeURI(item.url)) || ''}</ItemURL>
 					)}
 				</ItemContent>
-				{isOrderable && !isDragging && (
-					<VStack spacing={0} className="move-buttons">
-						<MoveButton
-							disabled={isFirst}
-							icon={chevronUp}
+				<ButtonContainer>
+					{isOrderable && !isDragging && (
+						<VStack spacing={0} className="move-buttons">
+							<MoveButton
+								disabled={isFirst}
+								icon={chevronUp}
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									onMoveUp?.();
+								}}
+								className="move-up-button"
+							>
+								<VisuallyHidden>
+									{__('Move item up', '10up-block-components')}
+								</VisuallyHidden>
+							</MoveButton>
+							<MoveButton
+								disabled={isLast}
+								icon={chevronDown}
+								onClick={(e: React.MouseEvent) => {
+									e.stopPropagation();
+									onMoveDown?.();
+								}}
+								className="move-down-button"
+							>
+								<VisuallyHidden>
+									{__('Move item down', '10up-block-components')}
+								</VisuallyHidden>
+							</MoveButton>
+						</VStack>
+					)}
+					{!isDragging && (
+						<RemoveButton
+							className="remove-button"
+							icon={close}
+							size="small"
+							variant="tertiary"
+							isDestructive
+							label={__('Remove item', '10up-block-components')}
 							onClick={(e: React.MouseEvent) => {
 								e.stopPropagation();
-								onMoveUp?.();
+								handleItemDelete(item);
 							}}
-							className="move-up-button"
-						>
-							<VisuallyHidden>
-								{__('Move item up', '10up-block-components')}
-							</VisuallyHidden>
-						</MoveButton>
-						<MoveButton
-							disabled={isLast}
-							icon={chevronDown}
-							onClick={(e: React.MouseEvent) => {
-								e.stopPropagation();
-								onMoveDown?.();
-							}}
-							className="move-down-button"
-						>
-							<VisuallyHidden>
-								{__('Move item down', '10up-block-components')}
-							</VisuallyHidden>
-						</MoveButton>
-					</VStack>
-				)}
-				{!isDragging && (
-					<RemoveButton
-						className="remove-button"
-						icon={close}
-						size="small"
-						variant="tertiary"
-						isDestructive
-						label={__('Remove item', '10up-block-components')}
-						onClick={(e: React.MouseEvent) => {
-							e.stopPropagation();
-							handleItemDelete(item);
-						}}
-					/>
-				)}
+						/>
+					)}
+				</ButtonContainer>
 			</PickedItemContainer>
 		</TreeGridRow>
 	);

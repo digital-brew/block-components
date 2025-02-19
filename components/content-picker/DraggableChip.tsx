@@ -16,7 +16,7 @@ const Chip = styled.div`
 	display: inline-flex;
 	margin: 0;
 	padding: 8px;
-	font-size: 13px;
+	font-size: 0.875rem;
 	line-height: 1.4;
 	white-space: nowrap;
 	max-width: min(300px, 100%);

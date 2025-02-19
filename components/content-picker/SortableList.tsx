@@ -15,6 +15,7 @@ import { __experimentalTreeGrid as TreeGrid } from '@wordpress/components';
 import { useCallback, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PickedItem, { PickedItemType } from './PickedItem';
+import { DraggableChip } from './DraggableChip';
 import { ContentSearchMode } from '../content-search/types';
 
 const dropAnimation = {
@@ -83,6 +84,8 @@ const SortableList: React.FC<SortableListProps> = ({
 		[activeId, posts],
 	);
 
+	console.log({ activePost });
+
 	if (!hasMultiplePosts && !isOrderable) {
 		return (
 			<>
@@ -132,18 +135,7 @@ const SortableList: React.FC<SortableListProps> = ({
 				</SortableContext>
 			</TreeGrid>
 			<DragOverlay dropAnimation={dropAnimation}>
-				{activeId && activePost ? (
-					<PickedItem
-						isOrderable={hasMultiplePosts && isOrderable}
-						handleItemDelete={handleItemDelete}
-						item={activePost}
-						mode={mode}
-						id={activePost.uuid}
-						isDragging
-						positionInSet={posts.findIndex((post) => post.uuid === activeId) + 1}
-						setSize={posts.length}
-					/>
-				) : null}
+				{activeId && activePost ? <DraggableChip title={activePost.title} /> : null}
 			</DragOverlay>
 		</DndContext>
 	);

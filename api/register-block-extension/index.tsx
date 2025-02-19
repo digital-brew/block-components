@@ -39,7 +39,7 @@ function registerBlockExtension(
 	const isMultiBlock = Array.isArray(blockName);
 
 	const shouldApplyBlockExtension = (blockType: string): boolean => {
-		if (blockName === '*') {
+		if (blockName === '*' || blockName === 'all') {
 			return true;
 		}
 

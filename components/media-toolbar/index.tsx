@@ -66,6 +66,7 @@ export const MediaToolbar: React.FC<MediaToolbarProps> = ({
 			{hasImage ? (
 				<>
 					<MediaReplaceFlow
+						mediaId={id}
 						mediaUrl={media?.source_url}
 						onSelect={onSelect}
 						name={mergedLabels.replace}

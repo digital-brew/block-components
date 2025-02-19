@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/post-meta",
 	"description": "Set some Metadata",
 	"title": "Post Meta",
@@ -9,5 +9,9 @@
 			"default": ""
 		}
 	},
-	"editorScript": "file:./index.js"
+	"usesContext": [
+		"postId",
+		"postType"
+	],
+	"editorScript": "file:./index.ts"
 }

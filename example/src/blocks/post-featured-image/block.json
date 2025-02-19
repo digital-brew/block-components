@@ -1,6 +1,6 @@
 {
 	"name": "example/custom-post-featured-image",
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"title": "Custom Post Featured Image",
 	"icon": "format-image",
 	"category": "common",
@@ -11,5 +11,5 @@
 	"attributes": {},
 	"variations": [],
 	"usesContext": ["postId", "postType", "queryId"],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

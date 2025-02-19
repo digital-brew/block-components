@@ -39,7 +39,7 @@ type Term = {
 	description: string;
 	id: number;
 	link: string;
-	meta: { [key: string]: unknown };
+	meta: Record<string, unknown>;
 	name: string;
 	parent: number;
 	slug: string;

@@ -1,4 +1,4 @@
-import { Flex, FlexItem } from '@wordpress/components';
+import { Flex, FlexItem, __experimentalTruncate as Truncate } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import styled from '@emotion/styled';
 import { DragHandle } from '../drag-handle';
@@ -19,6 +19,7 @@ const Chip = styled.div`
 	font-size: 13px;
 	line-height: 1.4;
 	white-space: nowrap;
+	max-width: min(300px, 100%);
 
 	svg {
 		fill: currentColor;
@@ -40,7 +41,9 @@ export const DraggableChip = (props: DraggableChipProps) => {
 		<ChipWrapper>
 			<Chip data-testid="draggable-chip">
 				<Flex justify="center" align="center" gap={4}>
-					<FlexItem>{title}</FlexItem>
+					<FlexItem>
+						<Truncate>{title}</Truncate>
+					</FlexItem>
 					<DragHandle />
 				</Flex>
 			</Chip>

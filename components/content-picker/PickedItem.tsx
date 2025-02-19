@@ -4,8 +4,14 @@ import { CSS } from '@dnd-kit/utilities';
 import { safeDecodeURI, filterURLForDisplay } from '@wordpress/url';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { close } from '@wordpress/icons';
-import { Button, __experimentalTreeGridRow as TreeGridRow } from '@wordpress/components';
+import { close, chevronUp, chevronDown } from '@wordpress/icons';
+import {
+	Button,
+	__experimentalTreeGridRow as TreeGridRow,
+	VisuallyHidden,
+	__experimentalVStack as VStack,
+	__experimentalTruncate as Truncate,
+} from '@wordpress/components';
 import { DragHandle } from '../drag-handle';
 import { ContentSearchMode } from '../content-search/types';
 
@@ -18,12 +24,15 @@ export type PickedItemType = {
 };
 
 const PickedItemContainer = styled.div<{ isDragging?: boolean; isOrderable?: boolean }>`
+	box-sizing: border-box;
 	position: relative;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 6px 8px;
 	min-height: 36px;
+	max-width: 100%;
+	width: 100%;
 	color: #1e1e1e;
 	opacity: ${({ isDragging }) => (isDragging ? 0.5 : 1)};
 	background: ${({ isDragging }) => (isDragging ? '#f0f0f0' : 'transparent')};
@@ -37,6 +46,13 @@ const PickedItemContainer = styled.div<{ isDragging?: boolean; isOrderable?: boo
 
 	&:hover {
 		background: #f0f0f0;
+
+		.move-up-button,
+		.move-down-button,
+		.remove-button {
+			opacity: 1;
+			pointer-events: auto;
+		}
 	}
 
 	.components-button.has-icon {
@@ -76,6 +92,7 @@ const RemoveButton = styled(Button)<{ isDragging?: boolean }>`
 const ItemContent = styled.div`
 	flex: 1;
 	min-width: 0;
+	max-width: calc(100% - 80px); /* Account for the width of buttons */
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -88,9 +105,6 @@ const ItemTitle = styled.span`
 	line-height: 1.4;
 	font-weight: 500;
 	color: #1e1e1e;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
 `;
 
 const ItemURL = styled.span`
@@ -102,6 +116,28 @@ const ItemURL = styled.span`
 	text-overflow: ellipsis;
 `;
 
+const MoveButton = styled(Button)`
+	&.components-button.has-icon {
+		min-width: 20px;
+		padding: 0;
+		height: 14px;
+	}
+
+	&.components-button.has-icon svg {
+		width: 18px;
+		height: 18px;
+	}
+
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.1s linear;
+
+	&:focus {
+		opacity: 1;
+		pointer-events: auto;
+	}
+`;
+
 interface PickedItemProps {
 	item: PickedItemType;
 	isOrderable?: boolean;
@@ -111,6 +147,8 @@ interface PickedItemProps {
 	isDragging?: boolean;
 	positionInSet?: number;
 	setSize?: number;
+	onMoveUp?: () => void;
+	onMoveDown?: () => void;
 }
 
 /**
@@ -127,6 +165,8 @@ const PickedItem: React.FC<PickedItemProps> = ({
 	isDragging = false,
 	positionInSet = 1,
 	setSize = 1,
+	onMoveUp,
+	onMoveDown,
 }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id,
@@ -136,6 +176,9 @@ const PickedItem: React.FC<PickedItemProps> = ({
 		transform: CSS.Transform.toString(transform),
 		transition,
 	};
+
+	const isFirst = positionInSet === 1;
+	const isLast = positionInSet === setSize;
 
 	return (
 		<TreeGridRow level={1} positionInSet={positionInSet} setSize={setSize}>
@@ -153,11 +196,43 @@ const PickedItem: React.FC<PickedItemProps> = ({
 					</DragHandleWrapper>
 				)}
 				<ItemContent isDragging={isDragging}>
-					<ItemTitle>{decodeEntities(item.title)}</ItemTitle>
+					<ItemTitle>
+						<Truncate>{decodeEntities(item.title)}</Truncate>
+					</ItemTitle>
 					{item.url && (
 						<ItemURL>{filterURLForDisplay(safeDecodeURI(item.url)) || ''}</ItemURL>
 					)}
 				</ItemContent>
+				{isOrderable && !isDragging && (
+					<VStack spacing={0} className="move-buttons">
+						<MoveButton
+							disabled={isFirst}
+							icon={chevronUp}
+							onClick={(e: React.MouseEvent) => {
+								e.stopPropagation();
+								onMoveUp?.();
+							}}
+							className="move-up-button"
+						>
+							<VisuallyHidden>
+								{__('Move item up', '10up-block-components')}
+							</VisuallyHidden>
+						</MoveButton>
+						<MoveButton
+							disabled={isLast}
+							icon={chevronDown}
+							onClick={(e: React.MouseEvent) => {
+								e.stopPropagation();
+								onMoveDown?.();
+							}}
+							className="move-down-button"
+						>
+							<VisuallyHidden>
+								{__('Move item down', '10up-block-components')}
+							</VisuallyHidden>
+						</MoveButton>
+					</VStack>
+				)}
 				{!isDragging && (
 					<RemoveButton
 						className="remove-button"

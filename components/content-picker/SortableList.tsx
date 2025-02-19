@@ -16,6 +16,7 @@ import { useCallback, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { Post, User, store as coreStore } from '@wordpress/core-data';
+import styled from '@emotion/styled';
 import PickedItem, { PickedItemType } from './PickedItem';
 import { DraggableChip } from './DraggableChip';
 import { ContentSearchMode } from '../content-search/types';
@@ -61,6 +62,19 @@ function getEntityKind(mode: ContentSearchMode) {
 
 	return type;
 }
+
+const StyledTreeGrid = styled(TreeGrid)`
+	max-width: 100%;
+	display: block;
+
+	& tbody,
+	& tr,
+	& td {
+		display: block;
+		max-width: 100%;
+		width: 100%;
+	}
+`;
 
 const SortableList: React.FC<SortableListProps> = ({
 	posts,
@@ -176,6 +190,16 @@ const SortableList: React.FC<SortableListProps> = ({
 			const preparedItem = preparedItems[post.uuid];
 			if (!preparedItem) return null;
 
+			const handleMoveUp = () => {
+				if (index === 0) return;
+				setPosts(arrayMove(posts, index, index - 1));
+			};
+
+			const handleMoveDown = () => {
+				if (index === items.length - 1) return;
+				setPosts(arrayMove(posts, index, index + 1));
+			};
+
 			return (
 				<PickedItem
 					isOrderable={hasMultiplePosts && isOrderable}
@@ -186,6 +210,8 @@ const SortableList: React.FC<SortableListProps> = ({
 					id={post.uuid}
 					positionInSet={index + 1}
 					setSize={items.length}
+					onMoveUp={handleMoveUp}
+					onMoveDown={handleMoveDown}
 				/>
 			);
 		});
@@ -194,14 +220,14 @@ const SortableList: React.FC<SortableListProps> = ({
 	// If not orderable or only one item, render simple list
 	if (!isOrderable || !hasMultiplePosts) {
 		return (
-			<TreeGrid
+			<StyledTreeGrid
 				className="block-editor-list-view-tree"
 				aria-label={__('Selected items list')}
 				onCollapseRow={() => {}}
 				onExpandRow={() => {}}
 			>
 				{renderItems(posts)}
-			</TreeGrid>
+			</StyledTreeGrid>
 		);
 	}
 
@@ -214,7 +240,7 @@ const SortableList: React.FC<SortableListProps> = ({
 			onDragEnd={handleDragEnd}
 			onDragCancel={handleDragCancel}
 		>
-			<TreeGrid
+			<StyledTreeGrid
 				className="block-editor-list-view-tree"
 				aria-label={__('Selected items list')}
 				onCollapseRow={() => {}}
@@ -223,7 +249,7 @@ const SortableList: React.FC<SortableListProps> = ({
 				<SortableContext items={items} strategy={verticalListSortingStrategy}>
 					{renderItems(posts)}
 				</SortableContext>
-			</TreeGrid>
+			</StyledTreeGrid>
 			<DragOverlay dropAnimation={dropAnimation}>
 				{activeId && activePost ? <DraggableChip title={activePost.title} /> : null}
 			</DragOverlay>

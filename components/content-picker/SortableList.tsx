@@ -167,34 +167,45 @@ const SortableList: React.FC<SortableListProps> = ({
 	}, []);
 
 	const activePost = useMemo(
-		() => preparedItems?.[activeId as string],
+		() => (activeId ? preparedItems?.[activeId as string] : null),
 		[activeId, preparedItems],
 	);
 
-	if (!hasMultiplePosts && !isOrderable) {
-		return (
-			<>
-				{posts.map((post) => {
-					const preparedItem = preparedItems[post.uuid];
-					if (!preparedItem) return null;
+	const renderItems = (items: Array<PickedItemType>) => {
+		return items.map((post, index) => {
+			const preparedItem = preparedItems[post.uuid];
+			if (!preparedItem) return null;
 
-					return (
-						<PickedItem
-							isOrderable={false}
-							key={post.uuid}
-							handleItemDelete={handleItemDelete}
-							item={preparedItem}
-							mode={mode}
-							id={post.uuid}
-							positionInSet={1}
-							setSize={1}
-						/>
-					);
-				})}
-			</>
+			return (
+				<PickedItem
+					isOrderable={hasMultiplePosts && isOrderable}
+					key={post.uuid}
+					handleItemDelete={handleItemDelete}
+					item={preparedItem}
+					mode={mode}
+					id={post.uuid}
+					positionInSet={index + 1}
+					setSize={items.length}
+				/>
+			);
+		});
+	};
+
+	// If not orderable or only one item, render simple list
+	if (!isOrderable || !hasMultiplePosts) {
+		return (
+			<TreeGrid
+				className="block-editor-list-view-tree"
+				aria-label={__('Selected items list')}
+				onCollapseRow={() => {}}
+				onExpandRow={() => {}}
+			>
+				{renderItems(posts)}
+			</TreeGrid>
 		);
 	}
 
+	// If orderable, wrap with drag and drop context
 	return (
 		<DndContext
 			sensors={sensors}
@@ -210,23 +221,7 @@ const SortableList: React.FC<SortableListProps> = ({
 				onExpandRow={() => {}}
 			>
 				<SortableContext items={items} strategy={verticalListSortingStrategy}>
-					{posts.map((post, index) => {
-						const preparedItem = preparedItems[post.uuid];
-						if (!preparedItem) return null;
-
-						return (
-							<PickedItem
-								isOrderable={hasMultiplePosts && isOrderable}
-								key={post.uuid}
-								handleItemDelete={handleItemDelete}
-								item={preparedItem}
-								mode={mode}
-								id={post.uuid}
-								positionInSet={index + 1}
-								setSize={posts.length}
-							/>
-						);
-					})}
+					{renderItems(posts)}
 				</SortableContext>
 			</TreeGrid>
 			<DragOverlay dropAnimation={dropAnimation}>

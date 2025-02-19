@@ -17,7 +17,7 @@ export type PickedItemType = {
 	url: string;
 };
 
-const PickedItemContainer = styled.div<{ isDragging?: boolean }>`
+const PickedItemContainer = styled.div<{ isDragging?: boolean; isOrderable?: boolean }>`
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -29,7 +29,10 @@ const PickedItemContainer = styled.div<{ isDragging?: boolean }>`
 	background: ${({ isDragging }) => (isDragging ? '#f0f0f0' : 'transparent')};
 	border-radius: 2px;
 	transition: background-color 0.1s linear;
-	cursor: ${({ isDragging }) => (isDragging ? 'grabbing' : 'grab')};
+	cursor: ${({ isDragging, isOrderable }) => {
+		if (!isOrderable) return 'default';
+		return isDragging ? 'grabbing' : 'grab';
+	}};
 	touch-action: none;
 
 	&:hover {
@@ -142,6 +145,7 @@ const PickedItem: React.FC<PickedItemProps> = ({
 				{...attributes}
 				{...listeners}
 				isDragging={isDragging}
+				isOrderable={isOrderable}
 			>
 				{isOrderable && (
 					<DragHandleWrapper isDragging={isDragging}>

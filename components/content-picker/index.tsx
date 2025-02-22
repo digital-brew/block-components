@@ -54,6 +54,7 @@ interface ContentPickerProps {
 	fetchInitialResults?: boolean;
 	renderItemType?: (props: NormalizedSuggestion) => string;
 	renderItem?: (props: RenderItemComponentProps) => JSX.Element;
+	PickedItemPreviewComponent?: React.ComponentType<{ item: PickedItemType }>;
 }
 
 export const ContentPicker: React.FC<ContentPickerProps> = ({
@@ -77,6 +78,7 @@ export const ContentPicker: React.FC<ContentPickerProps> = ({
 	fetchInitialResults = false,
 	renderItemType = defaultRenderItemType,
 	renderItem = undefined,
+	PickedItemPreviewComponent = undefined,
 }) => {
 	const currentPostId = select('core/editor')?.getCurrentPostId();
 
@@ -180,6 +182,7 @@ export const ContentPicker: React.FC<ContentPickerProps> = ({
 								isOrderable={isOrderable}
 								mode={mode}
 								setPosts={onPickChange}
+								PickedItemPreviewComponent={PickedItemPreviewComponent}
 							/>
 						</ul>
 					</StyleWrapper>

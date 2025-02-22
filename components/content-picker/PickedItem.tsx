@@ -156,7 +156,27 @@ interface PickedItemProps {
 	setSize?: number;
 	onMoveUp?: () => void;
 	onMoveDown?: () => void;
+	PickedItemPreviewComponent?: React.ComponentType<{ item: PickedItemType }>;
 }
+
+/**
+ * Component to render a preview of a picked item.
+ *
+ * @component
+ * @param {object} props - The component props.
+ * @param {PickedItemType} props.item - The picked item to display.
+ * @returns {*} React JSX
+ */
+const PickedItemPreview: React.FC<{ item: PickedItemType }> = ({ item }) => {
+	return (
+		<>
+			<ItemTitle>
+				<Truncate>{decodeEntities(item.title)}</Truncate>
+			</ItemTitle>
+			{item.url && <ItemURL>{filterURLForDisplay(safeDecodeURI(item.url)) || ''}</ItemURL>}
+		</>
+	);
+};
 
 /**
  * PickedItem
@@ -174,6 +194,7 @@ const PickedItem: React.FC<PickedItemProps> = ({
 	setSize = 1,
 	onMoveUp,
 	onMoveDown,
+	PickedItemPreviewComponent,
 }) => {
 	const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
 		id,
@@ -203,11 +224,10 @@ const PickedItem: React.FC<PickedItemProps> = ({
 					</DragHandleWrapper>
 				)}
 				<ItemContent isDragging={isDragging}>
-					<ItemTitle>
-						<Truncate>{decodeEntities(item.title)}</Truncate>
-					</ItemTitle>
-					{item.url && (
-						<ItemURL>{filterURLForDisplay(safeDecodeURI(item.url)) || ''}</ItemURL>
+					{PickedItemPreviewComponent ? (
+						<PickedItemPreviewComponent item={item} />
+					) : (
+						<PickedItemPreview item={item} />
 					)}
 				</ItemContent>
 				<ButtonContainer>

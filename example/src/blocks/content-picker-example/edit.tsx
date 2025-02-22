@@ -2,17 +2,8 @@ import React from 'react';
 import { __ } from '@wordpress/i18n';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, Placeholder } from '@wordpress/components';
-import { decodeEntities } from '@wordpress/html-entities';
-import { safeDecodeURI, filterURLForDisplay } from '@wordpress/url';
-import { ContentPicker } from '@10up/block-components';
 
-const PickedItemPreview = ({ item }) => {
-	return (
-		<a href={safeDecodeURI(item.url) || ''} target="_blank">
-			{decodeEntities(item.title)}
-		</a>
-	)
-};
+import { ContentPicker } from '@10up/block-components';
 
 export const BlockEdit = (props) => {
 	const {
@@ -49,7 +40,6 @@ export const BlockEdit = (props) => {
 						fetchInitialResults
 						content={selectedPosts}
 						maxContentItems={5}
-						PickedItemPreviewComponent={PickedItemPreview}
 					/>
 				</Placeholder>
 			</div>

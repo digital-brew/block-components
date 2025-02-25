@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/icon-picker-example",
 	"title": "Icon Picker Example",
 	"description": "Example Block to show the Icon Picker in usage",
@@ -18,5 +18,5 @@
 			}
 		}
 	},
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

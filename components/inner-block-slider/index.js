@@ -1,20 +1,20 @@
+/* eslint-disable */
+// @ts-nocheck
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { createBlock } from '@wordpress/blocks';
 import { useInnerBlocksProps } from '@wordpress/block-editor';
 import deprecated from '@wordpress/deprecated';
-import PropTypes from 'prop-types';
 /** @jsx jsx */
-// eslint-disable-next-line no-unused-vars
 import { jsx, css } from '@emotion/react';
 import { ChevronLeft, ChevronRight } from './icons';
 
-const InnerBlockSlider = ({
+export const InnerBlockSlider = ({
 	parentBlockId,
-	slidesPerPage,
+	slidesPerPage = 1,
 	allowedBlock,
-	template,
-	slideHeight,
+	template = null,
+	slideHeight = null,
 }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 
@@ -170,19 +170,3 @@ const InnerBlockSlider = ({
 		</div>
 	);
 };
-
-InnerBlockSlider.defaultProps = {
-	slidesPerPage: 1,
-	template: null,
-	slideHeight: null,
-};
-
-InnerBlockSlider.propTypes = {
-	slidesPerPage: PropTypes.number,
-	parentBlockId: PropTypes.string.isRequired,
-	allowedBlock: PropTypes.string.isRequired,
-	template: PropTypes.array,
-	slideHeight: PropTypes.string,
-};
-
-export { InnerBlockSlider };

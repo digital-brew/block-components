@@ -1,5 +1,5 @@
 {
-	"apiVersion": 2,
+	"apiVersion": 3,
 	"name": "example/content-search",
 	"title": "Post Searcher",
     "description": "Example Block to show the Content Search in usage",
@@ -15,5 +15,5 @@
         }
     },
     "variations": [],
-	"editorScript": "file:./index.js"
+	"editorScript": "file:./index.ts"
 }

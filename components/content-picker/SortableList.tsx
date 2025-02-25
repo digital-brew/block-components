@@ -32,6 +32,7 @@ interface SortableListProps {
 	handleItemDelete: (post: PickedItemType) => void;
 	mode: ContentSearchMode;
 	setPosts: (posts: Array<PickedItemType>) => void;
+	PickedItemPreviewComponent?: React.ComponentType<{ item: PickedItemType }>;
 }
 
 type Term = {
@@ -82,6 +83,7 @@ const SortableList: React.FC<SortableListProps> = ({
 	handleItemDelete,
 	mode = 'post',
 	setPosts,
+	PickedItemPreviewComponent,
 }) => {
 	const hasMultiplePosts = posts.length > 1;
 	const [activeId, setActiveId] = useState<string | null>(null);
@@ -212,6 +214,7 @@ const SortableList: React.FC<SortableListProps> = ({
 					setSize={items.length}
 					onMoveUp={handleMoveUp}
 					onMoveDown={handleMoveDown}
+					PickedItemPreviewComponent={PickedItemPreviewComponent}
 				/>
 			);
 		});
